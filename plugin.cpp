@@ -1,3 +1,4 @@
+#include "SkyrimLightsMenu.hpp"
 
 SKSEPluginLoad(const SKSE::LoadInterface* skse) {
     SKSE::Init(skse);
@@ -9,8 +10,10 @@ SKSEPluginLoad(const SKSE::LoadInterface* skse) {
             if (message->type == SKSE::MessagingInterface::kDataLoaded) 
             {
                 RE::ConsoleLog::GetSingleton()->Print("Hello World");
+				SLM::init();
             }
-        });
+        }
+    );
 
     return true;
 }
