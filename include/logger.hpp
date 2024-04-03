@@ -5,5 +5,5 @@ namespace logger = SKSE::log;
 
 namespace SLM
 {
-	bool setupLog();
+	void SetupLog();
 }

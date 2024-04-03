@@ -2,26 +2,27 @@
 
 namespace SLM
 {
-	bool setupLog()
+	void SetupLog()
 	{
-		auto logsFolder = SKSE::log::log_directory();
-		if (!logsFolder)
+		auto path = logger::log_directory();
+		if (!path)
 		{
-			SKSE::stl::report_and_fail("SKSE log_directory not provided, logs disabled.");
-			return false;
+			SKSE::stl::report_and_fail("Failed to find standard logging directory"sv);
 		}
 
-		auto pluginName    = SKSE::PluginDeclaration::GetSingleton()->GetName();
-		auto logFilePath   = *logsFolder / std::format("{}.log", pluginName);
-		auto fileLoggerPtr = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath.string(), true);
-		auto loggerPtr     = std::make_shared<spdlog::logger>("log", std::move(fileLoggerPtr));
+		auto pluginName = SKSE::PluginDeclaration::GetSingleton()->GetName();
+		*path /= std::format("{}.log"sv, pluginName);
 
-		spdlog::set_default_logger(std::move(loggerPtr));
-		spdlog::set_level(spdlog::level::trace);
-		spdlog::flush_on(spdlog::level::trace);
+		auto       sink  = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
 
-		logger::info("Skyrim Lights Menu logging initiated");
-		
-		return true;
+		const auto level = spdlog::level::trace;
+
+		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
+		log->set_level(level);
+		log->flush_on(level);
+		spdlog::set_default_logger(std::move(log));
+		spdlog::set_pattern("%s(%#): [%^%l%$] %v"s);
+
+		logger::info("Hello World");
 	}
 }
