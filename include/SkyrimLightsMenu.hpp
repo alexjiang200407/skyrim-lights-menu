@@ -1,4 +1,5 @@
 #pragma once
+#include "scene.hpp"
 
 namespace SLM
 {
@@ -11,15 +12,15 @@ namespace SLM
 		SkyrimLightsMenu& operator=(const SkyrimLightsMenu&) = delete;
 		SkyrimLightsMenu& operator=(SkyrimLightsMenu&&)      = delete;
 
-
 	public:
 		static void              Init();
 		RE::BSEventNotifyControl ProcessEvent(
 			RE::InputEvent* const* event,
 			RE::BSTEventSource<RE::InputEvent*>*) override;
 
-	private:		
-		std::vector<RE::TESObjectREFRPtr> refs;
-		static SkyrimLightsMenu* GetSingleton();
+	private:
+		Scene                             scene;
+		bool                              isMenuHidden;
+		static SkyrimLightsMenu           singleton;
 	};
 }
