@@ -14,6 +14,7 @@ file(GLOB_RECURSE source_files src/*.cpp)
 # Setup your SKSE plugin as an SKSE plugin!
 find_package(CommonLibSSE CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
+find_package(spdlog REQUIRED CONFIG)
 
 add_compile_definitions(SKYRIM_AE)
 
@@ -52,6 +53,7 @@ target_include_directories(
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
         CommonLibSSE::CommonLibSSE
+        spdlog::spdlog
         imgui::imgui
 )
 

@@ -32,7 +32,7 @@ void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)
 void SLM::Scene::ClearScene()
 {
 	for (auto& prop : props)
-		prop.RemoveProp();
+		prop.Remove();
 
 	props.clear();
 }

@@ -9,7 +9,7 @@ namespace SLM
 			ref(ref){};
 		
 	public:
-		void RemoveProp();
+		void Remove();
 
 	private:
 		RE::TESObjectREFRPtr ref;

@@ -1,28 +1,38 @@
 #pragma once
 #include "scene.hpp"
+#include "inputManager.hpp"
 
 namespace SLM
 {
 	class SkyrimLightsMenu :
-		public RE::BSTEventSink<RE::InputEvent*>
+		public SLM::Singleton<SkyrimLightsMenu>
 	{
+	public:
+		class UI
+		{
+		public:
+			UI()                     = default;
+			UI(const UI&)            = delete;
+			UI& operator=(const UI&) = delete;
+			UI& operator=(UI&&)      = delete;
+
+		public:
+			void Draw();
+		};
+
 	public:
 		SkyrimLightsMenu()                                   = default;
 		SkyrimLightsMenu(const SkyrimLightsMenu&)            = delete;
 		SkyrimLightsMenu& operator=(const SkyrimLightsMenu&) = delete;
 		SkyrimLightsMenu& operator=(SkyrimLightsMenu&&)      = delete;
-
+		
 	public:
-		static void Init();
+		void     Init();
+		UI&      GetUI() { return ui; }
 
 	private:
-		RE::BSEventNotifyControl ProcessEvent(
-			RE::InputEvent* const* event,
-			RE::BSTEventSource<RE::InputEvent*>*) override;
-
-	private:
-		Scene                             scene;
-		bool                              isMenuHidden;
-		static SkyrimLightsMenu           singleton;
+		Scene        scene;
+		UI           ui;
+		InputManager inputManager;
 	};
 }

@@ -1,6 +1,6 @@
 #include "prop.hpp"
 
-void SLM::Prop::RemoveProp()
+void SLM::Prop::Remove()
 {
 	ref->Disable();
 	ref->SetDelete(true);

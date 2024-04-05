@@ -1,12 +1,6 @@
 #include "renderer.hpp"
-#include <imgui.h>
-#include <imgui_impl_dx11.h>
-#include <imgui_impl_win32.h>
 #include <dxgi.h>
 #include "logger.hpp"
-
-
-std::atomic<bool> SLM::Renderer::initialized{ false };
 
 LRESULT SLM::Renderer::WndProc::thunk(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -51,10 +45,17 @@ inline void SLM::Renderer::CreateD3DAndSwapChain::thunk()
 	ImGui::CreateContext();
 
 	auto& io       = ImGui::GetIO();
-	io.ConfigFlags = ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
-	io.IniFilename = nullptr;
+	io.ConfigFlags |= (ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_NoMouseCursorChange);
 
-	// ImGui::StyleVanilla();
+	io.IniFilename = nullptr;
+	io.MouseDrawCursor                   = true;
+	io.ConfigWindowsMoveFromTitleBarOnly = true;
+
+	static const auto screenSize = Renderer::GetSingleton()->GetScreenSize();
+	logger::info("screen width {}, screen heigh {}", screenSize.width, screenSize.height);
+	
+	io.DisplaySize               = { static_cast<float>(screenSize.width), static_cast<float>(screenSize.height) };
+	io.MousePos                  = { io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f };
 
 	if (!ImGui_ImplWin32_Init(desc.OutputWindow))
 	{
@@ -68,6 +69,7 @@ inline void SLM::Renderer::CreateD3DAndSwapChain::thunk()
 	}
 
 	logger::info("ImGui initialized.");
+	Renderer::GetSingleton()->initialized.store(true);
 
 	WndProc::func = reinterpret_cast<WNDPROC>(
 		SetWindowLongPtrA(
@@ -86,7 +88,7 @@ inline void SLM::Renderer::StopTimer::thunk(std::uint32_t a_timer)
 	func(a_timer);
 
 	// Skip if Imgui is not loaded
-	if (!initialized.load())
+	if (!Renderer::GetSingleton()->initialized.load())
 	{
 		return;
 	}
@@ -94,12 +96,9 @@ inline void SLM::Renderer::StopTimer::thunk(std::uint32_t a_timer)
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	//{
-	//	// disable windowing
-	//	GImGui->NavWindowingTarget = nullptr;
 
-	//	photoMode->Draw();
-	//}
+	SkyrimLightsMenu::GetSingleton()->GetUI().Draw();
+
 	ImGui::EndFrame();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -107,10 +106,17 @@ inline void SLM::Renderer::StopTimer::thunk(std::uint32_t a_timer)
 
 void SLM::Renderer::Init()
 {
-	//logger::info("asdasdasdasd");
 	REL::Relocation<std::uintptr_t> target{ RELOCATION_ID(75595, 77226), OFFSET(0x9, 0x275) };  // BSGraphics::InitD3D
 	stl::write_thunk_call<CreateD3DAndSwapChain>(target.address());
 
 	REL::Relocation<std::uintptr_t> target2{ RELOCATION_ID(75461, 77246), 0x9 };  // BSGraphics::Renderer::End
 	stl::write_thunk_call<StopTimer>(target2.address());
+}
+
+SLM::Renderer::ScreenSize SLM::Renderer::GetScreenSize()
+{
+	// This is a global managed by Renderer, but not part of the RendererData struct.
+	// We pass back the value so users are not tempted to modify this directly.
+	REL::Relocation<ScreenSize*> singleton{ RELOCATION_ID(525002, 411483) };
+	return *singleton;
 }

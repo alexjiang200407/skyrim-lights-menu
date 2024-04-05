@@ -1,13 +1,19 @@
 #pragma once
-
-
-
+#include "SkyrimLightsMenu.hpp"
 
 namespace SLM
 {
-	class Renderer
+	class Renderer :
+		Singleton<Renderer>
 	{
 	private:
+		struct ScreenSize
+		{
+			uint32_t width;
+			uint32_t height;
+		};
+
+
 		struct WndProc
 		{
 			static LRESULT        thunk(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -27,10 +33,17 @@ namespace SLM
 		};
 
 	public:
-		static void Init();
+		Renderer() = default;
+		Renderer(const Renderer&) = delete;
+		Renderer& operator=(const Renderer&) = delete;
+
+
+	public:
+		static void       Init();
+		static ScreenSize GetScreenSize();
 
 	private:
-		static std::atomic<bool> initialized;
+		std::atomic<bool> initialized;
 	};
 
 

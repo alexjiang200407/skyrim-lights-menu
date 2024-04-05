@@ -26,7 +26,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * sk
 	SLM::SetupLog();
 
 	SKSE::Init(skse);
-	logger::info("fasdas");
 	SLM::Renderer::Init();
 
 	// Once all plugins and mods are loaded, then the ~ console is ready and
@@ -36,8 +35,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * sk
 		{
 			if (message->type == SKSE::MessagingInterface::kDataLoaded)
 			{
-				RE::ConsoleLog::GetSingleton()->Print("Hello World");
-				SLM::SkyrimLightsMenu::Init();
+				RE::ConsoleLog::GetSingleton()->Print("SkyrimLightsMenu has been loaded");
+				SLM::SkyrimLightsMenu::GetSingleton()->Init();
 			}
 		});
 
