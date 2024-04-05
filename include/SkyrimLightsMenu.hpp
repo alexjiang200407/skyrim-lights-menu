@@ -13,7 +13,9 @@ namespace SLM
 		SkyrimLightsMenu& operator=(SkyrimLightsMenu&&)      = delete;
 
 	public:
-		static void              Init();
+		static void Init();
+
+	private:
 		RE::BSEventNotifyControl ProcessEvent(
 			RE::InputEvent* const* event,
 			RE::BSTEventSource<RE::InputEvent*>*) override;

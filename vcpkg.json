@@ -3,6 +3,11 @@
     "name": "skyrim-lights-menu",
     "version-string": "0.0.1",
     "dependencies": [
-        "commonlibsse-ng"
+      "commonlibsse-ng",
+      {
+        "name": "imgui",
+        "features": [ "dx11-binding", "win32-binding", "freetype", "wchar32" ]
+      },
+      "spdlog"
     ]
 }

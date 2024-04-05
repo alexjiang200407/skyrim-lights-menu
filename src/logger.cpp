@@ -1,28 +1,19 @@
 #include "logger.hpp"
+#include "Version.h"
 
 namespace SLM
 {
 	void SetupLog()
 	{
-		auto path = logger::log_directory();
-		if (!path)
-		{
-			SKSE::stl::report_and_fail("Failed to find standard logging directory"sv);
-		}
+		assert(SKSE::log::log_directory().has_value());
+		auto path = SKSE::log::log_directory().value() / std::filesystem::path(Version::NAME.data() + ".log"s);
+		auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path.string(), true);
+		auto log  = std::make_shared<spdlog::logger>("global log", std::move(sink));
 
-		auto pluginName = SKSE::PluginDeclaration::GetSingleton()->GetName();
-		*path /= std::format("{}.log"sv, pluginName);
+		log->set_level(spdlog::level::trace);
+		log->flush_on(spdlog::level::trace);
 
-		auto       sink  = std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true);
-
-		const auto level = spdlog::level::trace;
-
-		auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
-		log->set_level(level);
-		log->flush_on(level);
 		spdlog::set_default_logger(std::move(log));
-		spdlog::set_pattern("%s(%#): [%^%l%$] %v"s);
-
-		logger::info("Hello World");
+		spdlog::set_pattern("%g(%#): [%^%l%$] %v", spdlog::pattern_time_type::local);
 	}
 }
