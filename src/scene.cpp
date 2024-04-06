@@ -1,31 +1,22 @@
 #include "scene.hpp"
-#include "logger.hpp"
 
 void SLM::Scene::DrawControlWindow()
 {
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
 	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
 
-	//ImGui::Begin("##Main", nullptr, ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration);
+	//ImGui::ShowDemoWindow();
 
-	ImGui::ShowDemoWindow();
-
-	if (ImGui::IsKeyReleased(ImGuiKey_A))
+	if (ImGui::Begin("##Main", nullptr, ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration))
 	{
-		logger::info("A has been pressed");
+		static float poo;
+		static char  buffer[1024];
+		ImGui::SliderFloat("Poop", &poo, 0.0f, 4.0f);
+		ImGui::Text("Poopy doopy");
+		ImGui::InputText("BUtts", buffer, sizeof(buffer));
 	}
 
-	if (ImGui::IsMouseClicked(0, false))
-	{
-		logger::info("Left mouse click");
-	}
-
-	if (ImGui::IsMouseClicked(1, false))
-	{
-		logger::info("Right mouse click");
-	}
-
-	//ImGui::End();
+	ImGui::End();
 }
 
 void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)

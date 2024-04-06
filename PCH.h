@@ -11,6 +11,8 @@
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
+#include <spdlog/sinks/basic_file_sink.h>
+
 
 using namespace std::literals;
 
@@ -29,6 +31,10 @@ namespace stl
 }
 
 #define DLLEXPORT __declspec(dllexport)
+
+namespace logger = SKSE::log;
+
+
 
 namespace SLM
 {
@@ -49,13 +55,8 @@ namespace SLM
 		uint32_t height;
 	};
 
-	ScreenSize GetScreenSize()
-	{
-		// This is a global managed by Renderer, but not part of the RendererData struct.
-		// We pass back the value so users are not tempted to modify this directly.
-		REL::Relocation<ScreenSize*> singleton{ RELOCATION_ID(525002, 411483) };
-		return *singleton;
-	}
+	ScreenSize GetScreenSize();
+
 }
 
 

@@ -1,5 +1,4 @@
 #include "hooks.hpp"
-#include "logger.hpp"
 #include <dxgi.h>
 
 LRESULT SLM::Hooks::WndProc::thunk(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -51,7 +50,7 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 	io.MouseDrawCursor                   = true;
 	io.ConfigWindowsMoveFromTitleBarOnly = true;
 
-	static const auto screenSize = GetScreenSize();
+	const auto screenSize = SLM::GetScreenSize();
 	logger::info("screen width {}, screen heigh {}", screenSize.width, screenSize.height);
 
 	io.DisplaySize = { static_cast<float>(screenSize.width), static_cast<float>(screenSize.height) };
@@ -111,4 +110,20 @@ void SLM::Hooks::Install()
 
 	REL::Relocation<std::uintptr_t> target2{ RELOCATION_ID(75461, 77246), 0x9 };  // BSGraphics::Renderer::End
 	stl::write_thunk_call<StopTimer>(target2.address());
+
+	REL::Relocation<std::uintptr_t> target3{ RELOCATION_ID(67315, 68617), OFFSET(0x7B, 0x7B) };
+	stl::write_thunk_call<SendInputEvent>(target3.address());
+}
+
+void SLM::Hooks::SendInputEvent::thunk(RE::BSTEventSource<RE::InputEvent*>* a_dispatcher, RE::InputEvent* const* a_events)
+{
+	if (a_events)
+	{
+		SLM::SkyrimLightsMenu::GetSingleton()->GetInputManager().ProcessInputEvent(a_events);
+	}
+
+	if (!SLM::SkyrimLightsMenu::GetSingleton()->IsMenuVisible())
+	{
+		func(a_dispatcher, a_events);
+	}
 }

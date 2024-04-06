@@ -1,5 +1,4 @@
 #include "inputManager.hpp"
-#include "logger.hpp"
 
 ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32KeyboardDevice::Key a_key)
 {
@@ -257,7 +256,7 @@ ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32GamepadDevice::Key a_key)
 	}
 }
 
-RE::BSEventNotifyControl SLM::InputManager::ProcessEvent(RE::InputEvent* const* ppEvent, RE::BSTEventSource<RE::InputEvent*>*)
+RE::BSEventNotifyControl SLM::InputManager::ProcessInputEvent(RE::InputEvent* const* ppEvent)
 {
 	if (!ppEvent || !(*ppEvent))
 		return RE::BSEventNotifyControl::kContinue;

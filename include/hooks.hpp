@@ -28,6 +28,12 @@ namespace SLM
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
+		struct SendInputEvent
+		{
+			static void                                    thunk(RE::BSTEventSource<RE::InputEvent*>* a_dispatcher, RE::InputEvent* const* a_events);
+			static inline REL::Relocation<decltype(thunk)> func;
+		};
+
 	public:
 		Hooks()                        = default;
 		Hooks(const Hooks&)            = delete;
