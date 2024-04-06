@@ -3,17 +3,13 @@
 
 namespace SLM
 {
-	class Renderer :
-		Singleton<Renderer>
+	/**
+	*	Hooks class to setup ImGui
+	*/
+	class Hooks :
+		Singleton<Hooks>
 	{
 	private:
-		struct ScreenSize
-		{
-			uint32_t width;
-			uint32_t height;
-		};
-
-
 		struct WndProc
 		{
 			static LRESULT        thunk(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -33,20 +29,15 @@ namespace SLM
 		};
 
 	public:
-		Renderer() = default;
-		Renderer(const Renderer&) = delete;
-		Renderer& operator=(const Renderer&) = delete;
-
+		Hooks()                        = default;
+		Hooks(const Hooks&)            = delete;
+		Hooks& operator=(const Hooks&) = delete;
 
 	public:
-		static void       Init();
-		static ScreenSize GetScreenSize();
+		static void Install();
 
 	private:
-		std::atomic<bool> initialized;
+		std::atomic<bool> installedHooks;
 	};
-
-
-
 
 }

@@ -8,17 +8,6 @@ namespace SLM
 		public SLM::Singleton<SkyrimLightsMenu>
 	{
 	public:
-		class UI
-		{
-		public:
-			UI()                     = default;
-			UI(const UI&)            = delete;
-			UI& operator=(const UI&) = delete;
-			UI& operator=(UI&&)      = delete;
-
-		public:
-			void Draw();
-		};
 
 	public:
 		SkyrimLightsMenu()                                   = default;
@@ -28,11 +17,9 @@ namespace SLM
 		
 	public:
 		void     Init();
-		UI&      GetUI() { return ui; }
-
+		void     DoFrame();
 	private:
 		Scene        scene;
-		UI           ui;
 		InputManager inputManager;
 	};
 }

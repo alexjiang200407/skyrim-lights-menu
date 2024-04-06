@@ -12,6 +12,7 @@ namespace SLM
 		Scene& operator=(const Scene&) = delete;
 
 	public:
+		void               DrawControlWindow();
 		void               PlaceProp(RE::TESBoundObject* obj);
 		void               ClearScene();
 		std::vector<Prop>& GetProps() { return props; }

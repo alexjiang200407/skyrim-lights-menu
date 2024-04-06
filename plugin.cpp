@@ -1,6 +1,6 @@
 #include "SkyrimLightsMenu.hpp"
 #include "logger.hpp"
-#include "renderer.hpp"
+#include "hooks.hpp"
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 #include "Version.h"
@@ -26,7 +26,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * sk
 	SLM::SetupLog();
 
 	SKSE::Init(skse);
-	SLM::Renderer::Init();
+	SLM::Hooks::Install();
 
 	// Once all plugins and mods are loaded, then the ~ console is ready and
 	// can be printed to
