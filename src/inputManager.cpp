@@ -219,18 +219,109 @@ ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32KeyboardDevice::Key a_key)
 	}
 }
 
+ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32GamepadDevice::Key a_key)
+{
+	using GAMEPAD_DIRECTX = RE::BSWin32GamepadDevice::Key;
+	switch (a_key)
+	{
+	case GAMEPAD_DIRECTX::kUp:
+		return ImGuiKey_GamepadDpadUp;
+	case GAMEPAD_DIRECTX::kDown:
+		return ImGuiKey_GamepadDpadDown;
+	case GAMEPAD_DIRECTX::kLeft:
+		return ImGuiKey_GamepadDpadLeft;
+	case GAMEPAD_DIRECTX::kRight:
+		return ImGuiKey_GamepadDpadRight;
+	case GAMEPAD_DIRECTX::kStart:
+		return ImGuiKey_GamepadStart;
+	case GAMEPAD_DIRECTX::kBack:
+		return ImGuiKey_GamepadBack;
+	case GAMEPAD_DIRECTX::kLeftThumb:
+		return ImGuiKey_GamepadL3;
+	case GAMEPAD_DIRECTX::kRightThumb:
+		return ImGuiKey_GamepadR3;
+	case GAMEPAD_DIRECTX::kLeftShoulder:
+		return ImGuiKey_GamepadL1;
+	case GAMEPAD_DIRECTX::kRightShoulder:
+		return ImGuiKey_GamepadR1;
+	case GAMEPAD_DIRECTX::kA:
+		return ImGuiKey_GamepadFaceDown;
+	case GAMEPAD_DIRECTX::kB:
+		return ImGuiKey_GamepadFaceRight;
+	case GAMEPAD_DIRECTX::kX:
+		return ImGuiKey_GamepadFaceLeft;
+	case GAMEPAD_DIRECTX::kY:
+		return ImGuiKey_GamepadFaceUp;
+	default:
+		return ImGuiKey_None;
+	}
+}
+
 RE::BSEventNotifyControl SLM::InputManager::ProcessEvent(RE::InputEvent* const* ppEvent, RE::BSTEventSource<RE::InputEvent*>*)
 {
-	if (!ppEvent || !(*ppEvent) || (*ppEvent)->GetEventType() != RE::INPUT_EVENT_TYPE::kButton)
+	if (!ppEvent || !(*ppEvent))
 		return RE::BSEventNotifyControl::kContinue;
 
-	RE::InputEvent*  event      = *ppEvent;
-	RE::ButtonEvent* buttonEvt  = event->AsButtonEvent();
-	uint32_t         dxScancode = buttonEvt->GetIDCode();
+	RE::InputEvent* event = *ppEvent;
 
-	auto& io = ImGui::GetIO();
-	const auto imguiKey = ToImGuiKey(static_cast<RE::BSWin32KeyboardDevice::Key>(dxScancode));
-	io.AddKeyEvent(imguiKey, buttonEvt->IsPressed());
+	if (const auto buttonEvt = event->AsButtonEvent())
+	{
+		switch (event->GetDevice())
+		{
+		case RE::INPUT_DEVICE::kKeyboard:
+			HandleKeyboardEvent(buttonEvt->GetIDCode(), buttonEvt->GetDevice(), buttonEvt->IsPressed());
+			break;
+		case RE::INPUT_DEVICE::kMouse:
+			HandleMouseEvent(buttonEvt->GetIDCode(), buttonEvt->Value(), buttonEvt->IsPressed());
+			break;
+		default:
+			break;
+		}
+	}
 
 	return RE::BSEventNotifyControl::kContinue;
+}
+
+void SLM::InputManager::HandleKeyboardEvent(uint32_t key, RE::INPUT_DEVICE device, bool isPressed) const
+{
+	using DEVICE = RE::INPUT_DEVICE;
+
+	auto&    io = ImGui::GetIO();
+	ImGuiKey imguiKey;
+
+	switch (device)
+	{
+	case DEVICE::kKeyboard:
+		imguiKey = ToImGuiKey(static_cast<RE::BSWin32KeyboardDevice::Key>(key));
+		break;
+	case DEVICE::kGamepad:
+		imguiKey = ToImGuiKey(static_cast<RE::BSWin32GamepadDevice::Key>(key));
+		break;
+	default:
+		imguiKey = ImGuiKey_None;
+		break;
+	}
+
+	if (imguiKey != ImGuiKey_None)
+		io.AddKeyEvent(imguiKey, isPressed);
+}
+
+void SLM::InputManager::HandleMouseEvent(uint32_t key, float value, bool isPressed) const
+{
+	using MOUSE = RE::BSWin32MouseDevice::Key;
+
+	auto& io = ImGui::GetIO();
+
+	switch (auto mouseKey = static_cast<MOUSE>(key))
+	{
+	case MOUSE::kWheelUp:
+		io.AddMouseWheelEvent(0, value);
+		break;
+	case MOUSE::kWheelDown:
+		io.AddMouseWheelEvent(0, value * -1.0f);
+		break;
+	default:
+		io.AddMouseButtonEvent(mouseKey, isPressed);
+		break;
+	}
 }
