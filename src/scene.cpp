@@ -3,19 +3,39 @@
 void SLM::Scene::DrawControlWindow()
 {
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-	ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+	const auto viewportSz = ImGui::GetMainViewport()->Size;
+	ImGui::SetNextWindowSize(ImVec2{ viewportSz.x * 0.4f, viewportSz.y });
 
-	//ImGui::ShowDemoWindow();
+	ImGui::Begin("$PM_Title_Menu", nullptr, windowFlags);
+	{		
+		// Draw Tabs of all props
+		ImGui::BeginTabBar("##propstabbar");
+		{
+			ImGui::TabItemButton("?", ImGuiTabItemFlags_Leading | ImGuiTabItemFlags_NoTooltip);
+			int i = 0;
+			for (auto& prop : props)
+			{
+				if (!prop.DrawTabItem())
+				{
+					props.erase(props.begin() + i);
+				}
 
-	if (ImGui::Begin("##Main", nullptr, ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration))
-	{
-		static float poo;
-		static char  buffer[1024];
-		ImGui::SliderFloat("Poop", &poo, 0.0f, 4.0f);
-		ImGui::Text("Poopy doopy");
-		ImGui::InputText("BUtts", buffer, sizeof(buffer));
+				i++;
+			}
+			
+			if (ImGui::TabItemButton("+", ImGuiTabItemFlags_Trailing | ImGuiTabItemFlags_NoTooltip))
+			{
+				PlaceProp(RE::TESForm::LookupByID(0xfe044800)->As<RE::TESBoundObject>());
+			}
+		}
+		ImGui::EndTabBar();
+
+		// Draw prop info
+
+
+
+		// Draw control panel
 	}
-
 	ImGui::End();
 }
 

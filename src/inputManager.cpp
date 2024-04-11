@@ -1,9 +1,9 @@
 #include "inputManager.hpp"
 
-ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32KeyboardDevice::Key a_key)
+ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32KeyboardDevice::Key key)
 {
 	using KEY = RE::BSWin32KeyboardDevice::Key;
-	switch (a_key)
+	switch (key)
 	{
 	case KEY::kTab:
 		return ImGuiKey_Tab;
@@ -218,10 +218,10 @@ ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32KeyboardDevice::Key a_key)
 	}
 }
 
-ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32GamepadDevice::Key a_key)
+ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32GamepadDevice::Key key)
 {
 	using GAMEPAD_DIRECTX = RE::BSWin32GamepadDevice::Key;
-	switch (a_key)
+	switch (key)
 	{
 	case GAMEPAD_DIRECTX::kUp:
 		return ImGuiKey_GamepadDpadUp;
@@ -268,7 +268,13 @@ RE::BSEventNotifyControl SLM::InputManager::ProcessInputEvent(RE::InputEvent* co
 		switch (event->GetDevice())
 		{
 		case RE::INPUT_DEVICE::kKeyboard:
-			HandleKeyboardEvent(buttonEvt->GetIDCode(), buttonEvt->GetDevice(), buttonEvt->IsPressed());
+			{
+				HandleKeyboardEvent(buttonEvt->GetIDCode(), buttonEvt->GetDevice(), buttonEvt->IsPressed());
+
+				if (buttonEvt->GetEventType() == RE::INPUT_EVENT_TYPE::kChar)
+					logger::info("CHar event");
+				//	HandleCharEvent(buttonEvt->GetIDCode(), buttonEvt->GetDevice());
+			}
 			break;
 		case RE::INPUT_DEVICE::kMouse:
 			HandleMouseEvent(buttonEvt->GetIDCode(), buttonEvt->Value(), buttonEvt->IsPressed());
@@ -303,6 +309,19 @@ void SLM::InputManager::HandleKeyboardEvent(uint32_t key, RE::INPUT_DEVICE devic
 
 	if (imguiKey != ImGuiKey_None)
 		io.AddKeyEvent(imguiKey, isPressed);
+}
+
+void SLM::InputManager::HandleCharEvent(uint32_t key, RE::INPUT_DEVICE device) const
+{
+	using DEVICE = RE::INPUT_DEVICE;
+	auto& io = ImGui::GetIO();
+
+	logger::info("Handling char event");
+
+	if (device == DEVICE::kKeyboard)
+	{
+		io.AddInputCharacter(SKSE::InputMap::GetKeyboardKeyName(key).c_str()[0]);
+	}
 }
 
 void SLM::InputManager::HandleMouseEvent(uint32_t key, float value, bool isPressed) const

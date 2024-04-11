@@ -15,16 +15,19 @@ namespace SLM
 		SkyrimLightsMenu& operator=(SkyrimLightsMenu&&)      = delete;
 
 	public:
-		void          Init();
 		void          DoFrame();
 		bool          IsMenuVisible() const;
 		void          HideMenu();
 		void          ToggleMenu();
+		void          SetMenuVisibility(bool setVisible);
 		InputManager& GetInputManager();
+
+		void          ToggleShowDemo();
 
 	private:
 		Scene        scene;
 		InputManager inputManager;
 		bool         isVisible = false;
+		bool         showDemo  = false;
 	};
 }

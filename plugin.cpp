@@ -51,7 +51,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * sk
 			if (message->type == SKSE::MessagingInterface::kDataLoaded)
 			{
 				RE::ConsoleLog::GetSingleton()->Print("SkyrimLightsMenu has been loaded");
-				SLM::SkyrimLightsMenu::GetSingleton()->Init();
 			}
 		});
 

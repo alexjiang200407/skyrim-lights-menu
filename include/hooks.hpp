@@ -24,13 +24,13 @@ namespace SLM
 
 		struct StopTimer
 		{
-			static void                                    thunk(std::uint32_t a_timer);
+			static void                                    thunk(std::uint32_t timer);
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 
 		struct SendInputEvent
 		{
-			static void                                    thunk(RE::BSTEventSource<RE::InputEvent*>* a_dispatcher, RE::InputEvent* const* a_events);
+			static void                                    thunk(RE::BSTEventSource<RE::InputEvent*>* dispatcher, RE::InputEvent* const* ppEvents);
 			static inline REL::Relocation<decltype(thunk)> func;
 		};
 

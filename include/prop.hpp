@@ -9,7 +9,8 @@ namespace SLM
 			ref(ref){};
 		
 	public:
-		void Remove();
+		bool                 DrawTabItem();
+		void                 Remove();
 
 	private:
 		RE::TESObjectREFRPtr ref;

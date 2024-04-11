@@ -47,7 +47,6 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 	io.ConfigFlags |= (ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_NoMouseCursorChange);
 
 	io.IniFilename                       = nullptr;
-	io.MouseDrawCursor                   = true;
 	io.ConfigWindowsMoveFromTitleBarOnly = true;
 
 	const auto screenSize = SLM::GetScreenSize();
@@ -82,9 +81,9 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 	}
 }
 
-inline void SLM::Hooks::StopTimer::thunk(std::uint32_t a_timer)
+inline void SLM::Hooks::StopTimer::thunk(std::uint32_t timer)
 {
-	func(a_timer);
+	func(timer);
 
 	// Skip draw if hooks haven't been registered
 	if (!Hooks::GetSingleton()->installedHooks.load())
@@ -115,15 +114,15 @@ void SLM::Hooks::Install()
 	stl::write_thunk_call<SendInputEvent>(target3.address());
 }
 
-void SLM::Hooks::SendInputEvent::thunk(RE::BSTEventSource<RE::InputEvent*>* a_dispatcher, RE::InputEvent* const* a_events)
+void SLM::Hooks::SendInputEvent::thunk(RE::BSTEventSource<RE::InputEvent*>* dispatcher, RE::InputEvent* const* ppEvent)
 {
-	if (a_events)
+	if (ppEvent)
 	{
-		SLM::SkyrimLightsMenu::GetSingleton()->GetInputManager().ProcessInputEvent(a_events);
+		SLM::SkyrimLightsMenu::GetSingleton()->GetInputManager().ProcessInputEvent(ppEvent);
 	}
 
 	if (!SLM::SkyrimLightsMenu::GetSingleton()->IsMenuVisible())
 	{
-		func(a_dispatcher, a_events);
+		func(dispatcher, ppEvent);
 	}
 }

@@ -18,6 +18,10 @@ find_package(spdlog REQUIRED CONFIG)
 
 add_compile_definitions(SKYRIM_AE)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(DEBUG)
+endif()
+
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/Version.h.in
 	${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
