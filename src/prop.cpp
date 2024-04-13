@@ -2,16 +2,26 @@
 
 bool SLM::Prop::DrawTabItem()
 {
-	bool open = true;
-	if (ImGui::BeginTabItem(std::format("{} 0x{:X}", ref->GetName(), ref->GetFormID()).c_str(), &open))
-	{
-		ImGui::EndTabItem();
+	bool isSelected;
+	return DrawTabItem(&isSelected);
+}
 
-		// User closes tab
-		if (!open)
-		{
-			Remove();
-		}
+bool SLM::Prop::DrawTabItem(bool* isSelected = nullptr)
+{
+	bool open = true;
+	bool selected = false;
+	if (selected = ImGui::BeginTabItem(std::format("{} 0x{:X}", ref->GetName(), ref->GetFormID()).c_str(), &open))
+	{
+		if (isSelected)
+			*isSelected = selected;
+
+		ImGui::EndTabItem();
+	}
+	// User closes tab
+	if (!open)
+	{
+		logger::info("Removing prop with ID 0x{:X}", ref->GetFormID());
+		Remove();
 	}
 
 	return open;
@@ -21,4 +31,9 @@ void SLM::Prop::Remove()
 {
 	ref->Disable();
 	ref->SetDelete(true);
+}
+
+void SLM::Prop::DrawControlWindow()
+{
+	 palette.DrawPaletteControlWindow();
 }

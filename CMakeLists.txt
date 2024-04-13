@@ -15,6 +15,7 @@ file(GLOB_RECURSE source_files src/*.cpp)
 find_package(CommonLibSSE CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(spdlog REQUIRED CONFIG)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 add_compile_definitions(SKYRIM_AE)
 
@@ -59,6 +60,8 @@ target_link_libraries(${PROJECT_NAME}
         CommonLibSSE::CommonLibSSE
         spdlog::spdlog
         imgui::imgui
+        nlohmann_json 
+        nlohmann_json::nlohmann_json
 )
 
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "prop.hpp"
+#include "palette.hpp"
 
 namespace SLM
 {
@@ -20,6 +21,6 @@ namespace SLM
 	private:
 		std::vector<Prop>                 props;
 		static constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration;
-		static constexpr ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll;
+		static constexpr ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll;	
 	};
 }

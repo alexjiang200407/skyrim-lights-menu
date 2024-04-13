@@ -7,22 +7,37 @@ void SLM::Scene::DrawControlWindow()
 	ImGui::SetNextWindowSize(ImVec2{ viewportSz.x * 0.4f, viewportSz.y });
 
 	ImGui::Begin("$PM_Title_Menu", nullptr, windowFlags);
-	{		
+	{
+
+		int activePropIndex = -1;
+
 		// Draw Tabs of all props
 		ImGui::BeginTabBar("##propstabbar");
 		{
 			ImGui::TabItemButton("?", ImGuiTabItemFlags_Leading | ImGuiTabItemFlags_NoTooltip);
 			int i = 0;
-			for (auto& prop : props)
+
+			bool activeProp = false;
+			for (auto prop = props.begin(); prop != props.end();)
 			{
-				if (!prop.DrawTabItem())
+				// check if user deleted prop
+				if (!prop->DrawTabItem(&activeProp))
 				{
-					props.erase(props.begin() + i);
+					// Remove deleted prop from store
+					prop = props.erase(props.begin() + i);
+					continue;
+				}
+
+				++prop;
+
+				if (activeProp)
+				{
+					activePropIndex = i;
 				}
 
 				i++;
 			}
-			
+
 			if (ImGui::TabItemButton("+", ImGuiTabItemFlags_Trailing | ImGuiTabItemFlags_NoTooltip))
 			{
 				PlaceProp(RE::TESForm::LookupByID(0xfe044800)->As<RE::TESBoundObject>());
@@ -31,10 +46,12 @@ void SLM::Scene::DrawControlWindow()
 		ImGui::EndTabBar();
 
 		// Draw prop info
-
-
+		if (activePropIndex != -1)
+			props[activePropIndex].DrawControlWindow();
+	
 
 		// Draw control panel
+
 	}
 	ImGui::End();
 }
@@ -61,10 +78,13 @@ void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)
 	RE::NiPoint3 lookingAt = origin + directionVec;
 
 	auto newPropRef = RE::TESDataHandler::GetSingleton()->CreateReferenceAtLocation(
-		obj, lookingAt, { 0.0f, 0.0f, 0.0f }, playerRef->GetParentCell(), nullptr,
-		nullptr, nullptr, {}, true, false).get();
+															obj, lookingAt, { 0.0f, 0.0f, 0.0f }, playerRef->GetParentCell(), nullptr,
+		nullptr, nullptr, {}, true, false);
 
-	props.push_back(newPropRef);
+	if (newPropRef)
+		props.push_back(newPropRef.get());
+	else
+		logger::error("Couldn't place new reference at location");
 }
 
 void SLM::Scene::ClearScene()

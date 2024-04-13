@@ -2,6 +2,7 @@
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 #include "Version.h"
+#include "palette.hpp"
 
 namespace SLM
 {
@@ -39,6 +40,7 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * skse)
 {
 	SLM::SetupLog();
+	SLM::Palette::LoadPaletteFile();
 
 	SKSE::Init(skse);
 	SLM::Hooks::Install();

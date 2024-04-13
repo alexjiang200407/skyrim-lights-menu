@@ -1,4 +1,5 @@
 #pragma once
+#include "palette.hpp"
 
 namespace SLM
 {
@@ -10,9 +11,12 @@ namespace SLM
 		
 	public:
 		bool                 DrawTabItem();
+		bool                 DrawTabItem(bool* isSelected);
 		void                 Remove();
+		void                 DrawControlWindow();
 
 	private:
 		RE::TESObjectREFRPtr ref;
+		Palette              palette;
 	};
 }
