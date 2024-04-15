@@ -8,14 +8,15 @@ namespace SLM
 	class Palette
 	{
 	public:
-		void                DrawPaletteControlWindow();
+		Rgb                 DrawPaletteControlWindow();
 		int                 GetColorCount() const { return colorCount; }
 		static const char*  GetColorsNames(size_t index);
 		static const Color* GetColors() { return colors.get(); }
 		static void         LoadPaletteFile();
 
 	private:
-		int                               chosenColor = 0;
+		int                               chosenPresetIndex = 0;
+		int                               chooseCustomColor = 0;
 		static int                        colorCount;
 		static std::unique_ptr<Color[]>   colors;
 		static constexpr std::string_view filePath = "./Data/SKSE/Plugins/SkyrimLightsMenu.json"sv;

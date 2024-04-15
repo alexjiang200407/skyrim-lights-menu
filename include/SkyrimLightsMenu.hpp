@@ -21,6 +21,7 @@ namespace SLM
 		void          ToggleMenu();
 		void          SetMenuVisibility(bool setVisible);
 		InputManager& GetInputManager();
+		static void   SetImGuiStyle();
 
 		void          ToggleShowDemo();
 

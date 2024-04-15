@@ -12,8 +12,12 @@ namespace SLM
 		Scene(const Scene&&)           = delete;
 		Scene& operator=(const Scene&) = delete;
 
+	// ImGui
 	public:
 		void               DrawControlWindow();
+
+
+	public:
 		void               PlaceProp(RE::TESBoundObject* obj);
 		void               ClearScene();
 		std::vector<Prop>& GetProps() { return props; }

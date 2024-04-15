@@ -9,11 +9,13 @@ namespace SLM
 		Prop(RE::TESObjectREFRPtr ref) :
 			ref(ref){};
 		
+	// ImGui
 	public:
-		bool                 DrawTabItem();
 		bool                 DrawTabItem(bool* isSelected);
-		void                 Remove();
 		void                 DrawControlWindow();
+
+	public:
+		void                 Remove();
 
 	private:
 		RE::TESObjectREFRPtr ref;

@@ -8,18 +8,17 @@ void SLM::Scene::DrawControlWindow()
 
 	ImGui::Begin("$PM_Title_Menu", nullptr, windowFlags);
 	{
-
 		int activePropIndex = -1;
 
 		// Draw Tabs of all props
-		ImGui::BeginTabBar("##propstabbar");
+		ImGui::BeginTabBar("##propstabbar", ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_FittingPolicyScroll);
 		{
 			ImGui::TabItemButton("?", ImGuiTabItemFlags_Leading | ImGuiTabItemFlags_NoTooltip);
 			int i = 0;
 
-			bool activeProp = false;
 			for (auto prop = props.begin(); prop != props.end();)
 			{
+				bool activeProp = false;
 				// check if user deleted prop
 				if (!prop->DrawTabItem(&activeProp))
 				{
@@ -28,12 +27,10 @@ void SLM::Scene::DrawControlWindow()
 					continue;
 				}
 
-				++prop;
+				prop++;
 
 				if (activeProp)
-				{
 					activePropIndex = i;
-				}
 
 				i++;
 			}
@@ -45,7 +42,7 @@ void SLM::Scene::DrawControlWindow()
 		}
 		ImGui::EndTabBar();
 
-		// Draw prop info
+		// Draw prop control panel
 		if (activePropIndex != -1)
 			props[activePropIndex].DrawControlWindow();
 	

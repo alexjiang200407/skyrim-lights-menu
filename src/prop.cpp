@@ -1,11 +1,5 @@
 #include "prop.hpp"
 
-bool SLM::Prop::DrawTabItem()
-{
-	bool isSelected;
-	return DrawTabItem(&isSelected);
-}
-
 bool SLM::Prop::DrawTabItem(bool* isSelected = nullptr)
 {
 	bool open = true;
@@ -35,5 +29,10 @@ void SLM::Prop::Remove()
 
 void SLM::Prop::DrawControlWindow()
 {
-	 palette.DrawPaletteControlWindow();
+	ImGui::BeginChild("##PropControlWindow", ImVec2(0, 150), true);
+	{
+		ImGui::Text("Choose Light Color");
+		palette.DrawPaletteControlWindow();
+	}
+	ImGui::EndChild();
 }

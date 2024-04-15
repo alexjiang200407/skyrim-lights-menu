@@ -1,13 +1,30 @@
 #include "palette.hpp"
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "imguiUtil.hpp"
 
 std::unique_ptr<SLM::Color[]> SLM::Palette::colors;
 int                           SLM::Palette::colorCount;
 
-void SLM::Palette::DrawPaletteControlWindow()
+SLM::Rgb SLM::Palette::DrawPaletteControlWindow()
 {
-	ImGui::SliderInt("Choose a color", &chosenColor, 0, GetColorCount() - 1, GetColorsNames(chosenColor));
+	ImGui::RadioButton("Preset Color", &chooseCustomColor, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("Custom Color", &chooseCustomColor, 1);
+
+	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+	ImGui::SliderInt("Preset", &chosenPresetIndex, 0, GetColorCount() - 1, GetColorsNames(chosenPresetIndex));
+
+	static float customColor[3] = { 0.0f, 0.0f, 0.0f };
+
+	ImGui::ColorEdit3("Color", customColor);
+
+	if (chooseCustomColor == 1)
+	{
+		return Rgb{ uint8_t(customColor[0] * 255), uint8_t(customColor[1] * 255), uint8_t(customColor[2] * 255) };
+	}
+	ImGui::PopItemWidth();
+	return std::get<1>(colors[chosenPresetIndex]);
 }
 
 const char* SLM::Palette::GetColorsNames(size_t index)
@@ -36,7 +53,7 @@ void SLM::Palette::LoadPaletteFile()
 
 		json colorsJson = data["colors"];
 
-		colorCount = colorsJson.size();
+		colorCount = static_cast<int>(colorsJson.size());
 		logger::info("found {} colors in JSON file", colorCount);
 		colors = std::make_unique<Color[]>(colorCount);
 

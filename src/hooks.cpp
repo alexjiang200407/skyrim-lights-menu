@@ -48,12 +48,7 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 
 	io.IniFilename                       = nullptr;
 	io.ConfigWindowsMoveFromTitleBarOnly = true;
-
-	const auto screenSize = SLM::GetScreenSize();
-	logger::info("screen width {}, screen heigh {}", screenSize.width, screenSize.height);
-
-	io.DisplaySize = { static_cast<float>(screenSize.width), static_cast<float>(screenSize.height) };
-	io.MousePos    = { io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f };
+	io.MousePos                          = { io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f };
 
 	if (!ImGui_ImplWin32_Init(desc.OutputWindow))
 	{
@@ -68,6 +63,8 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 
 	logger::info("ImGui initialized.");
 	Hooks::GetSingleton()->installedHooks.store(true);
+
+	SkyrimLightsMenu::SetImGuiStyle();
 
 	WndProc::func = reinterpret_cast<WNDPROC>(
 		SetWindowLongPtrA(
@@ -93,6 +90,13 @@ inline void SLM::Hooks::StopTimer::thunk(std::uint32_t timer)
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
+
+	{
+		const auto screenSize = SLM::GetScreenSize();
+		auto&      io         = ImGui::GetIO();
+		io.DisplaySize        = { static_cast<float>(screenSize.width), static_cast<float>(screenSize.height) };
+	}
+
 	ImGui::NewFrame();
 
 	SkyrimLightsMenu::GetSingleton()->DoFrame();
