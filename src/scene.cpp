@@ -45,10 +45,8 @@ void SLM::Scene::DrawControlWindow()
 		// Draw prop control panel
 		if (activePropIndex != -1)
 			props[activePropIndex].DrawControlWindow();
-	
 
 		// Draw control panel
-
 	}
 	ImGui::End();
 }
@@ -72,14 +70,18 @@ void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)
 	directionVec *= 50.0f;
 
 	// X metres ahead of player
-	RE::NiPoint3 lookingAt = origin + directionVec;
+	RE::NiPoint3 lookingAt    = origin + directionVec;
+	auto*        factory      = RE::IFormFactory::GetFormFactoryByType(RE::FormType::Light);
+	auto*        lightBaseObj = factory->Create()->As<RE::TESObjectLIGH>();
+
+	lightBaseObj->data = obj->As<RE::TESObjectLIGH>()->data;
 
 	auto newPropRef = RE::TESDataHandler::GetSingleton()->CreateReferenceAtLocation(
-															obj, lookingAt, { 0.0f, 0.0f, 0.0f }, playerRef->GetParentCell(), nullptr,
+		lightBaseObj->As<RE::TESBoundObject>(), lookingAt, { 0.0f, 0.0f, 0.0f }, playerRef->GetParentCell(), nullptr,
 		nullptr, nullptr, {}, true, false);
 
 	if (newPropRef)
-		props.push_back(newPropRef.get());
+		props.push_back({ lightBaseObj, newPropRef.get() });
 	else
 		logger::error("Couldn't place new reference at location");
 }
