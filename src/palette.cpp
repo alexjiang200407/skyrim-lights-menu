@@ -13,7 +13,15 @@ SLM::Rgb SLM::Palette::DrawPaletteControlWindow()
 	ImGui::RadioButton("Custom Color", &chooseCustomColor, 1);
 
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-	ImGui::SliderInt("Preset", &chosenPresetIndex, 0, GetColorCount() - 1, GetColorsNames(chosenPresetIndex));
+	ImGui::Combo(
+		"Preset", &chosenPresetIndex, [](void* data, int idx, const char** out_pcstr)
+		{ 
+			*out_pcstr = GetColorsNames(idx);
+
+			return true;
+		}, nullptr,
+		GetColorCount()
+	);
 
 	static float customColor[3] = { 0.0f, 0.0f, 0.0f };
 
