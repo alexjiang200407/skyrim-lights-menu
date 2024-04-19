@@ -11,7 +11,8 @@ namespace SLM
 			lightBase(light),
 			ref(ref),
 			lightColor(light->data.color.red, light->data.color.green, light->data.color.blue),
-			lightType(&lightBase->data.flags)
+			lightType(&lightBase->data.flags),
+			startingPos(ref->GetPosition())
 		{
 			logger::info("Light base 0x{:X}", light->GetFormID());
 			logger::info("Light ref 0x{:X}", ref->GetFormID());
@@ -34,6 +35,8 @@ namespace SLM
 	private:
 		RE::TESObjectLIGH*   lightBase;
 		RE::TESObjectREFRPtr ref;
+		RE::NiPoint3         startingPos;
+		RE::NiPoint3         movePos{ 0, 0, 0 };
 		Palette              palette;
 		LightType            lightType;
 		Rgb                  lightColor;

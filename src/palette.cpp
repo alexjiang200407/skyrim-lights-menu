@@ -6,7 +6,7 @@
 std::unique_ptr<SLM::Color[]> SLM::Palette::colors;
 int                           SLM::Palette::colorCount;
 
-SLM::Rgb SLM::Palette::DrawPaletteControlWindow()
+SLM::Rgb SLM::Palette::DrawControlWindow()
 {
 	ImGui::RadioButton("Preset Color", &chooseCustomColor, 0);
 	ImGui::SameLine();
@@ -14,7 +14,7 @@ SLM::Rgb SLM::Palette::DrawPaletteControlWindow()
 
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 	ImGui::Combo(
-		"Preset", &chosenPresetIndex, [](void* data, int idx, const char** out_pcstr)
+		"Preset", &chosenPresetIndex, [](void*, int idx, const char** out_pcstr)
 		{ 
 			*out_pcstr = GetColorsNames(idx);
 
@@ -22,8 +22,6 @@ SLM::Rgb SLM::Palette::DrawPaletteControlWindow()
 		}, nullptr,
 		GetColorCount()
 	);
-
-	static float customColor[3] = { 0.0f, 0.0f, 0.0f };
 
 	ImGui::ColorEdit3("Color", customColor);
 

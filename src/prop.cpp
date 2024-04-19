@@ -67,7 +67,7 @@ void SLM::Prop::DrawControlWindow()
 	ImGui::BeginChild("##LightColorControlWindow", ImVec2(0, 150), true);
 	{
 		ImGui::Text("Choose Light Color:");
-		SLM::Rgb newColor = palette.DrawPaletteControlWindow();
+		SLM::Rgb newColor = palette.DrawControlWindow();
 
 		if (newColor != lightColor)
 		{
@@ -90,4 +90,25 @@ void SLM::Prop::DrawControlWindow()
 	{
 		Reload3D();
 	}
+
+	ImGui::BeginChild("##LightPlacementWindow", ImVec2(0, 200), true);
+	{
+		bool changed = false;
+		ImGui::Text("Position:");
+		changed |= ImGui::DragFloat("x:", &movePos.x, 1.0f, -100.0f, 100.0f);
+		changed |= ImGui::DragFloat("y:", &movePos.y, 1.0f, -100.0f, 100.0f);
+		changed |= ImGui::DragFloat("z:", &movePos.z, 1.0f, -100.0f, 100.0f);
+
+		if (ImGui::Button("Reset Position"))
+		{
+			movePos = { 0.0f, 0.0f, 0.0f };
+			changed = true;
+		}
+
+		if (changed)
+		{
+			ref->SetPosition(startingPos + movePos);
+		}
+	}
+	ImGui::EndChild();
 }

@@ -1,6 +1,6 @@
 #pragma once
-#include "prop.hpp"
 #include "palette.hpp"
+#include "prop.hpp"
 
 namespace SLM
 {
@@ -12,19 +12,19 @@ namespace SLM
 		Scene(const Scene&&)           = delete;
 		Scene& operator=(const Scene&) = delete;
 
-	// ImGui
+		// ImGui
 	public:
-		void               DrawControlWindow();
-
+		void DrawControlWindow();
 
 	public:
 		void               PlaceProp(RE::TESBoundObject* obj);
 		void               ClearScene();
 		std::vector<Prop>& GetProps() { return props; }
+		void               ToggleAI();
 
 	private:
 		std::vector<Prop>                 props;
 		static constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration;
-		static constexpr ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll;	
+		static constexpr ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll;
 	};
 }

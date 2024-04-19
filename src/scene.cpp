@@ -1,5 +1,7 @@
 #include "scene.hpp"
 
+//float& SLM::Scene::cameraTranslateSpeed = 
+
 void SLM::Scene::DrawControlWindow()
 {
 	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
@@ -47,6 +49,31 @@ void SLM::Scene::DrawControlWindow()
 			props[activePropIndex].DrawControlWindow();
 
 		// Draw control panel
+		ImGui::BeginChild("###SceneControlWindow", ImVec2(0, 100), true);
+		{
+			ImGui::Text("Scene Properties:");
+			bool aiEnabled = RE::ProcessLists::GetSingleton()->runSchedules;
+			bool freeCameraMode = RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode();
+
+			if (ImGui::Checkbox("Enable NPC AI", &aiEnabled))
+				ToggleAI();
+			ImGui::SameLine();
+			if (ImGui::Checkbox("Free Camera Mode", &freeCameraMode))
+			{
+				RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(RE::Main::GetSingleton()->freezeTime);
+
+				if (freeCameraMode)
+					SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
+				else
+					SLM::PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
+			}
+			ImGui::SameLine();
+			ImGui::Checkbox("Freeze Time", &RE::Main::GetSingleton()->freezeTime);
+
+			if (ImGui::Button("Add Light"))
+				PlaceProp(RE::TESForm::LookupByID(0xfe044800)->As<RE::TESBoundObject>());
+		}
+		ImGui::EndChild();
 	}
 	ImGui::End();
 }
@@ -61,29 +88,29 @@ void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)
 		return;
 	}
 
-	RE::NiPoint3 collision = RE::CrosshairPickData::GetSingleton()->collisionPoint;
 	RE::NiPoint3 origin;
-	RE::NiPoint3 directionVec;
 
-	RE::PlayerCharacter::GetSingleton()->GetEyeVector(origin, directionVec, false);
+	if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
+		reinterpret_cast<RE::FreeCameraState*>(RE::PlayerCamera::GetSingleton()->currentState.get())->GetTranslation(origin);
+	else
+		origin = RE::PlayerCamera::GetSingleton()->pos;
 
-	directionVec *= 50.0f;
-
-	// X metres ahead of player
-	RE::NiPoint3 lookingAt    = origin + directionVec;
 	auto*        factory      = RE::IFormFactory::GetFormFactoryByType(RE::FormType::Light);
 	auto*        lightBaseObj = factory->Create()->As<RE::TESObjectLIGH>();
 
 	lightBaseObj->data = obj->As<RE::TESObjectLIGH>()->data;
 
 	auto newPropRef = RE::TESDataHandler::GetSingleton()->CreateReferenceAtLocation(
-		lightBaseObj->As<RE::TESBoundObject>(), lookingAt, { 0.0f, 0.0f, 0.0f }, playerRef->GetParentCell(), nullptr,
+		lightBaseObj->As<RE::TESBoundObject>(), origin, { 0.0f, 0.0f, 0.0f }, playerRef->GetParentCell(), playerRef->GetWorldspace(),
 		nullptr, nullptr, {}, true, false);
 
 	if (newPropRef)
 		props.push_back({ lightBaseObj, newPropRef.get() });
 	else
+	{
 		logger::error("Couldn't place new reference at location");
+		RE::DebugNotification("Couldn't place light at location");
+	}
 }
 
 void SLM::Scene::ClearScene()
@@ -92,4 +119,10 @@ void SLM::Scene::ClearScene()
 		prop.Remove();
 
 	props.clear();
+}
+
+void SLM::Scene::ToggleAI()
+{
+	REL::Relocation<void(RE::ProcessLists*)> func{ RELOCATION_ID(40317, 41327) };
+	func(RE::ProcessLists::GetSingleton());
 }

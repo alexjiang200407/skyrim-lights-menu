@@ -64,7 +64,11 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 	logger::info("ImGui initialized.");
 	Hooks::GetSingleton()->installedHooks.store(true);
 
-	SkyrimLightsMenu::SetImGuiStyle();
+	{
+		static const auto screenSize = SLM::GetScreenSize();
+		io.DisplaySize.x             = static_cast<float>(screenSize.width);
+		io.DisplaySize.y             = static_cast<float>(screenSize.height);
+	}
 
 	WndProc::func = reinterpret_cast<WNDPROC>(
 		SetWindowLongPtrA(
@@ -76,6 +80,9 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 	{
 		logger::error("SetWindowLongPtrA failed!");
 	}
+
+	SkyrimLightsMenu::SetImGuiStyle();
+	logger::info("Set ImGui Style");
 }
 
 inline void SLM::Hooks::StopTimer::thunk(std::uint32_t timer)
@@ -92,9 +99,10 @@ inline void SLM::Hooks::StopTimer::thunk(std::uint32_t timer)
 	ImGui_ImplWin32_NewFrame();
 
 	{
-		const auto screenSize = SLM::GetScreenSize();
-		auto&      io         = ImGui::GetIO();
-		io.DisplaySize        = { static_cast<float>(screenSize.width), static_cast<float>(screenSize.height) };
+		static const auto screenSize = SLM::GetScreenSize();
+		auto&             io         = ImGui::GetIO();
+		io.DisplaySize.x             = static_cast<float>(screenSize.width);
+		io.DisplaySize.y             = static_cast<float>(screenSize.height);
 	}
 
 	ImGui::NewFrame();
@@ -125,8 +133,32 @@ void SLM::Hooks::SendInputEvent::thunk(RE::BSTEventSource<RE::InputEvent*>* disp
 		SLM::SkyrimLightsMenu::GetSingleton()->GetInputManager().ProcessInputEvent(ppEvent);
 	}
 
+
 	if (!SLM::SkyrimLightsMenu::GetSingleton()->IsMenuVisible())
 	{
 		func(dispatcher, ppEvent);
 	}
+	// Menu is visible but allow player movement to be handled
+	//else if (ppEvent && *ppEvent)
+	//{
+	//	const auto* evt = *ppEvent;
+
+	//	if (evt->eventType.any(RE::INPUT_EVENT_TYPE::kButton))
+	//	{
+	//		const auto* buttonEvt = evt->AsButtonEvent();
+	//		const auto* controlMap = RE::ControlMap::GetSingleton();
+
+	//		if (buttonEvt->GetIDCode() == controlMap->GetMappedKey("Up", (*ppEvent)->GetDevice(), RE::UserEvents::INPUT_CONTEXT_IDS::kTFCMode) ||
+	//			buttonEvt->GetIDCode() == controlMap->GetMappedKey("Down", (*ppEvent)->GetDevice(), RE::UserEvents::INPUT_CONTEXT_IDS::kTFCMode) ||
+	//			buttonEvt->GetIDCode() == controlMap->GetMappedKey("Left", (*ppEvent)->GetDevice(), RE::UserEvents::INPUT_CONTEXT_IDS::kTFCMode) ||
+	//			buttonEvt->GetIDCode() == controlMap->GetMappedKey("Right", (*ppEvent)->GetDevice(), RE::UserEvents::INPUT_CONTEXT_IDS::kTFCMode))
+	//			func(dispatcher, ppEvent);
+
+
+	//	}
+	//	else if (evt->GetDevice() == RE::INPUT_DEVICE::kMouse)
+	//	{
+	//		func(dispatcher, ppEvent);
+	//	}
+	//}
 }

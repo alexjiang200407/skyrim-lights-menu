@@ -63,6 +63,17 @@ namespace SLM
 		return *singleton;
 	}
 
+	inline void PushInputContext(RE::ControlMap::InputContextID a_context)
+	{
+		REL::Relocation<void(RE::ControlMap*, RE::ControlMap::InputContextID)> func{ RELOCATION_ID(67243, 68543) };
+		return func(RE::ControlMap::GetSingleton(), a_context);
+	}
+
+	inline void PopInputContext(RE::ControlMap::InputContextID a_context)
+	{
+		REL::Relocation<void(RE::ControlMap*, RE::ControlMap::InputContextID)> func{ RELOCATION_ID(67244, 68544) };
+		return func(RE::ControlMap::GetSingleton(), a_context);
+	}
 }
 
 
