@@ -258,29 +258,33 @@ ImGuiKey SLM::InputManager::ToImGuiKey(RE::BSWin32GamepadDevice::Key key)
 
 RE::BSEventNotifyControl SLM::InputManager::ProcessInputEvent(RE::InputEvent* const* ppEvent)
 {
-	if (!ppEvent || !(*ppEvent))
+	if (!ppEvent)
 		return RE::BSEventNotifyControl::kContinue;
 
-	RE::InputEvent* event = *ppEvent;
-
-	if (const auto buttonEvt = event->AsButtonEvent())
+	for (auto* event = *ppEvent; event; event = event->next)
 	{
-		switch (event->GetDevice())
+		if (const auto buttonEvt = event->AsButtonEvent())
 		{
-		case RE::INPUT_DEVICE::kKeyboard:
+			switch (event->GetDevice())
 			{
-				HandleKeyboardEvent(buttonEvt->GetIDCode(), buttonEvt->GetDevice(), buttonEvt->IsPressed());
+			case RE::INPUT_DEVICE::kKeyboard:
+				{
+					HandleKeyboardEvent(buttonEvt->GetIDCode(), buttonEvt->GetDevice(), buttonEvt->IsPressed());
 
-				if (buttonEvt->GetEventType() == RE::INPUT_EVENT_TYPE::kChar)
-					logger::info("CHar event");
-				//	HandleCharEvent(buttonEvt->GetIDCode(), buttonEvt->GetDevice());
+					if (event->GetEventType() == RE::INPUT_EVENT_TYPE::kChar)
+					{
+						HandleCharEvent(buttonEvt->GetIDCode(), buttonEvt->GetDevice());
+					}
+				}
+				break;
+			case RE::INPUT_DEVICE::kMouse:
+			{
+				HandleMouseEvent(buttonEvt->GetIDCode(), buttonEvt->Value(), buttonEvt->IsPressed());
 			}
-			break;
-		case RE::INPUT_DEVICE::kMouse:
-			HandleMouseEvent(buttonEvt->GetIDCode(), buttonEvt->Value(), buttonEvt->IsPressed());
-			break;
-		default:
-			break;
+				break;
+			default:
+				break;
+			}
 		}
 	}
 
@@ -329,6 +333,9 @@ void SLM::InputManager::HandleMouseEvent(uint32_t key, float value, bool isPress
 	using MOUSE = RE::BSWin32MouseDevice::Key;
 
 	auto& io = ImGui::GetIO();
+
+	if (!io.MouseDrawCursor)
+		return;
 
 	switch (auto mouseKey = static_cast<MOUSE>(key))
 	{

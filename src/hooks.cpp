@@ -65,9 +65,10 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 	Hooks::GetSingleton()->installedHooks.store(true);
 
 	{
-		static const auto screenSize = SLM::GetScreenSize();
-		io.DisplaySize.x             = static_cast<float>(screenSize.width);
-		io.DisplaySize.y             = static_cast<float>(screenSize.height);
+		static const auto screenSize         = SLM::GetScreenSize();
+		io.DisplaySize.x                     = static_cast<float>(screenSize.width);
+		io.DisplaySize.y                     = static_cast<float>(screenSize.height);
+		io.ConfigWindowsMoveFromTitleBarOnly = true;
 	}
 
 	WndProc::func = reinterpret_cast<WNDPROC>(
@@ -133,32 +134,50 @@ void SLM::Hooks::SendInputEvent::thunk(RE::BSTEventSource<RE::InputEvent*>* disp
 		SLM::SkyrimLightsMenu::GetSingleton()->GetInputManager().ProcessInputEvent(ppEvent);
 	}
 
-
 	if (!SLM::SkyrimLightsMenu::GetSingleton()->IsMenuVisible())
 	{
 		func(dispatcher, ppEvent);
 	}
 	// Menu is visible but allow player movement to be handled
-	//else if (ppEvent && *ppEvent)
-	//{
-	//	const auto* evt = *ppEvent;
+	else if (ppEvent)
+	{
+		bool flag = true;
+		RE::InputEvent* prev = nullptr;
 
-	//	if (evt->eventType.any(RE::INPUT_EVENT_TYPE::kButton))
-	//	{
-	//		const auto* buttonEvt = evt->AsButtonEvent();
-	//		const auto* controlMap = RE::ControlMap::GetSingleton();
+		RE::InputEvent** eventsList = const_cast<RE::InputEvent**>(ppEvent);
 
-	//		if (buttonEvt->GetIDCode() == controlMap->GetMappedKey("Up", (*ppEvent)->GetDevice(), RE::UserEvents::INPUT_CONTEXT_IDS::kTFCMode) ||
-	//			buttonEvt->GetIDCode() == controlMap->GetMappedKey("Down", (*ppEvent)->GetDevice(), RE::UserEvents::INPUT_CONTEXT_IDS::kTFCMode) ||
-	//			buttonEvt->GetIDCode() == controlMap->GetMappedKey("Left", (*ppEvent)->GetDevice(), RE::UserEvents::INPUT_CONTEXT_IDS::kTFCMode) ||
-	//			buttonEvt->GetIDCode() == controlMap->GetMappedKey("Right", (*ppEvent)->GetDevice(), RE::UserEvents::INPUT_CONTEXT_IDS::kTFCMode))
-	//			func(dispatcher, ppEvent);
+		for (auto* it = *ppEvent; it; it = it->next)
+		{
+			if (!SLM::SkyrimLightsMenu::GetSingleton()->AllowInput(it))
+			{
+				if (prev != nullptr)
+				{
+					prev->next = it->next;
+				}
+				else
+				{
+					*eventsList = it->next;
+				}
+			}
+			else
+			{
+				prev = it;
+			}
+		}
 
+		//				logger::info("Can process this!!");
+		//auto* tmp = it->next;
+		//logger::info("{}", (void*)tmp);
+		//it->next = nullptr;
+		//func(dispatcher, &it);
+		//it->next = tmp;
+		//logger::info("{}", (void*)tmp);
 
-	//	}
-	//	else if (evt->GetDevice() == RE::INPUT_DEVICE::kMouse)
-	//	{
-	//		func(dispatcher, ppEvent);
-	//	}
-	//}
+		func(dispatcher, eventsList);
+	}
+	else
+	{
+		constexpr RE::InputEvent* const dummy[] = { nullptr };
+		func(dispatcher, dummy);
+	}
 }

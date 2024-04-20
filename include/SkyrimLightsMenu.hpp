@@ -25,6 +25,9 @@ namespace SLM
 
 		void          ToggleShowDemo();
 
+		bool          AllowInput(RE::InputEvent* event);
+
+
 	private:
 		Scene        scene;
 		InputManager inputManager;

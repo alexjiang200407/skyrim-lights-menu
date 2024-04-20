@@ -40,5 +40,6 @@ namespace SLM
 		Palette              palette;
 		LightType            lightType;
 		Rgb                  lightColor;
+		static bool          followCursor;
 	};
 }

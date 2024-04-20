@@ -1,15 +1,12 @@
 #include "scene.hpp"
+#include "util.hpp"
 
 //float& SLM::Scene::cameraTranslateSpeed = 
 
 void SLM::Scene::DrawControlWindow()
 {
-	ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-	const auto viewportSz = ImGui::GetMainViewport()->Size;
-	ImGui::SetNextWindowSize(ImVec2{ viewportSz.x * 0.4f, viewportSz.y });
-
-	ImGui::Begin("$PM_Title_Menu", nullptr, windowFlags);
-	{
+	//ImGui::Begin("$PM_Title_Menu", nullptr, windowFlags);
+	//{
 		int activePropIndex = -1;
 
 		// Draw Tabs of all props
@@ -49,33 +46,38 @@ void SLM::Scene::DrawControlWindow()
 			props[activePropIndex].DrawControlWindow();
 
 		// Draw control panel
-		ImGui::BeginChild("###SceneControlWindow", ImVec2(0, 100), true);
+		ImGui::BeginChild("###SceneControlWindow", ImVec2(0, 150), true);
 		{
 			ImGui::Text("Scene Properties:");
-			bool aiEnabled = RE::ProcessLists::GetSingleton()->runSchedules;
-			bool freeCameraMode = RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode();
+			//bool aiEnabled = RE::ProcessLists::GetSingleton()->runSchedules;
+			//bool freeCameraMode = RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode();
 
-			if (ImGui::Checkbox("Enable NPC AI", &aiEnabled))
-				ToggleAI();
-			ImGui::SameLine();
-			if (ImGui::Checkbox("Free Camera Mode", &freeCameraMode))
+			//if (ImGui::Checkbox("Enable NPC AI", &aiEnabled))
+			//	ToggleAI();
+			//ImGui::SameLine();
+			//if (ImGui::Checkbox("Free Camera Mode", &freeCameraMode))
+			//{
+			//	RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(RE::Main::GetSingleton()->freezeTime);
+
+			//	if (freeCameraMode)
+			//		SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
+			//	else
+			//		SLM::PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
+			//}
+			//ImGui::SameLine();
+			//ImGui::Checkbox("Freeze Time", &RE::Main::GetSingleton()->freezeTime);
+
+			if (ImGui::Checkbox("Look Around", &allowLookAround))
 			{
-				RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(RE::Main::GetSingleton()->freezeTime);
-
-				if (freeCameraMode)
-					SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
-				else
-					SLM::PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
+				ImGui::GetStyle().Colors[ImGuiCol_WindowBg].w = 0.5f;
 			}
-			ImGui::SameLine();
-			ImGui::Checkbox("Freeze Time", &RE::Main::GetSingleton()->freezeTime);
 
 			if (ImGui::Button("Add Light"))
 				PlaceProp(RE::TESForm::LookupByID(0xfe044800)->As<RE::TESBoundObject>());
 		}
 		ImGui::EndChild();
-	}
-	ImGui::End();
+	//}
+	//ImGui::End();
 }
 
 void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)

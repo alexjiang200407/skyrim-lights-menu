@@ -1,4 +1,8 @@
 #include "prop.hpp"
+#include "util.hpp"
+
+
+bool SLM::Prop::followCursor = false;
 
 bool SLM::Prop::DrawTabItem(bool* isSelected = nullptr)
 {
@@ -88,27 +92,43 @@ void SLM::Prop::DrawControlWindow()
 	// Reload the 3d
 	if (changed)
 	{
+		logger::info("REload 3d");
 		Reload3D();
 	}
 
 	ImGui::BeginChild("##LightPlacementWindow", ImVec2(0, 200), true);
 	{
-		bool changed = false;
 		ImGui::Text("Position:");
-		changed |= ImGui::DragFloat("x:", &movePos.x, 1.0f, -100.0f, 100.0f);
-		changed |= ImGui::DragFloat("y:", &movePos.y, 1.0f, -100.0f, 100.0f);
-		changed |= ImGui::DragFloat("z:", &movePos.z, 1.0f, -100.0f, 100.0f);
 
-		if (ImGui::Button("Reset Position"))
+		ImGui::Checkbox("Follow cursor", &followCursor);
+		if (followCursor)
 		{
-			movePos = { 0.0f, 0.0f, 0.0f };
-			changed = true;
+			RE::NiQuaternion q;
+			reinterpret_cast<RE::FreeCameraState*>(RE::PlayerCamera::GetSingleton()->currentState.get())->GetRotation(q);
+
+			RE::NiMatrix3 matrix = QuaternionToMatrix(q);
+
+			RE::NiPoint3 xAxis = matrix * GetCameraPosition();
+			xAxis.Unitize();		
+
+			const RE::NiPoint3 placeAtPosition = GetCameraPosition() + xAxis * 50.0f;
+
+			ref->SetPosition(placeAtPosition);
+			startingPos = placeAtPosition;
 		}
 
-		if (changed)
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("x").x - ImGui::GetStyle().ItemSpacing.x);
+		
+		bool changed = ImGui::DragFloat("x", &movePos.x, 1.0f, -100.0f, 100.0f);
+		changed |= ImGui::DragFloat("y", &movePos.y, 1.0f, -100.0f, 100.0f);
+		changed |= ImGui::DragFloat("z", &movePos.z, 1.0f, -100.0f, 100.0f);
+		if (changed)			
 		{
 			ref->SetPosition(startingPos + movePos);
 		}
+
+		ImGui::PopItemWidth();
+
 	}
 	ImGui::EndChild();
 }

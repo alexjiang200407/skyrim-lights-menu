@@ -11,14 +11,28 @@ void SLM::SkyrimLightsMenu::DoFrame()
 		}
 		else
 		{
-			ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-			ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+			//ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
+
+			static bool firstOpen = true;
+
+			if (firstOpen)
+			{
+				ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
+				const auto viewportSz = ImGui::GetMainViewport()->Size;
+				ImGui::SetNextWindowSize(ImVec2{ viewportSz.x * 0.3f, viewportSz.y * 0.8f });
+				firstOpen = false;
+			}
 
 			// Draw main window
-			ImGui::Begin("##Main", nullptr, ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration);
+			bool open = true;
+			if (ImGui::Begin("##Main", &open, ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration))
 			{
 				scene.DrawControlWindow();
 			}
+
+			if (!open)
+				SetMenuVisibility(false);
+
 			ImGui::End();
 		}
 	}
@@ -34,7 +48,7 @@ void SLM::SkyrimLightsMenu::DoFrame()
 		logger::trace("Hiding menu");
 		HideMenu();
 	}
-#ifdef  DEBUG
+#ifdef DEBUG
 	else if (ImGui::IsKeyPressed(ImGuiKey_H) && IsMenuVisible())
 	{
 		ToggleShowDemo();
@@ -62,11 +76,24 @@ void SLM::SkyrimLightsMenu::SetMenuVisibility(bool setVisible)
 	{
 		RE::PlaySound("UIJournalTabsSD");
 		io.MouseDrawCursor = true;
+		io.MousePos        = { SLM::GetScreenSize().width * 0.5f, SLM::GetScreenSize().height * 0.5f };
+
+		if (!RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
+		{
+			RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(true);
+			SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
+		}
 	}
 	else
 	{
 		RE::PlaySound("UIMenuCancel");
 		io.MouseDrawCursor = false;
+
+		if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
+		{
+			RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(true);
+			SLM::PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
+		}
 	}
 
 	isVisible = setVisible;
@@ -129,3 +156,18 @@ void SLM::SkyrimLightsMenu::SetImGuiStyle()
 }
 
 inline void SLM::SkyrimLightsMenu::ToggleShowDemo() { showDemo = !showDemo; }
+
+bool SLM::SkyrimLightsMenu::AllowInput(RE::InputEvent* event)
+{
+	const auto* buttonEvt  = event->AsButtonEvent();
+	const auto* controlMap = RE::ControlMap::GetSingleton();
+
+	if (!RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
+		return false;
+
+	return (buttonEvt && (buttonEvt->GetIDCode() == controlMap->GetMappedKey("Forward", buttonEvt->GetDevice()) ||
+							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Back", buttonEvt->GetDevice()) ||
+							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Strafe Left", buttonEvt->GetDevice()) ||
+							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Strafe Right", buttonEvt->GetDevice()))) ||
+	       (event->GetEventType() == RE::INPUT_EVENT_TYPE::kMouseMove && scene.allowLookAround);
+}
