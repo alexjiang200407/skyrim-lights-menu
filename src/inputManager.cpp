@@ -263,6 +263,9 @@ RE::BSEventNotifyControl SLM::InputManager::ProcessInputEvent(RE::InputEvent* co
 
 	for (auto* event = *ppEvent; event; event = event->next)
 	{
+		if (!AllowImGuiInput(event))
+			continue;
+
 		if (const auto buttonEvt = event->AsButtonEvent())
 		{
 			switch (event->GetDevice())
@@ -289,6 +292,29 @@ RE::BSEventNotifyControl SLM::InputManager::ProcessInputEvent(RE::InputEvent* co
 	}
 
 	return RE::BSEventNotifyControl::kContinue;
+}
+
+RE::InputEvent* const* SLM::InputManager::FilterGameInput(RE::InputEvent* const* events)
+{
+	RE::InputEvent* prev = nullptr;
+
+	RE::InputEvent** eventsList = const_cast<RE::InputEvent**>(events);
+
+	for (auto* event = *events; event; event = event->next)
+	{
+		if (!AllowGameInput(event))
+		{
+			if (prev)
+				prev->next = event->next;
+			else
+				*eventsList = event->next;
+		}
+		else
+		{
+			prev = event;
+		}
+	}
+	return eventsList;
 }
 
 void SLM::InputManager::HandleKeyboardEvent(uint32_t key, RE::INPUT_DEVICE device, bool isPressed) const

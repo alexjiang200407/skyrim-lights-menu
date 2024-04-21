@@ -23,7 +23,7 @@ namespace SLM
 		void               ToggleAI();
 
 	public:
-		bool                              allowLookAround = false;
+		bool                              hideMenu = false;
 	private:
 		std::vector<Prop>                 props;
 		static constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration;

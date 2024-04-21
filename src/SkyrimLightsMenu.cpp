@@ -22,12 +22,15 @@ void SLM::SkyrimLightsMenu::DoFrame()
 				ImGui::SetNextWindowSize(ImVec2{ viewportSz.x * 0.3f, viewportSz.y * 0.8f });
 				firstOpen = false;
 			}
+			ImGuiWindowFlags flags = scene.hideMenu ? ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground : 0;
 
 			// Draw main window
 			bool open = true;
-			if (ImGui::Begin("##Main", &open, ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration))
+			if (ImGui::Begin("##Main", &open, flags))
 			{
+				ImGui::BeginDisabled(scene.hideMenu);
 				scene.DrawControlWindow();
+				ImGui::EndDisabled();
 			}
 
 			if (!open)
@@ -43,10 +46,15 @@ void SLM::SkyrimLightsMenu::DoFrame()
 		logger::trace("Toggle menu");
 		ToggleMenu();
 	}
-	else if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
 	{
 		logger::trace("Hiding menu");
 		HideMenu();
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
+	{
+		logger::info("Toggle Look around");
+		scene.hideMenu = !scene.hideMenu;
 	}
 #ifdef DEBUG
 	else if (ImGui::IsKeyPressed(ImGuiKey_H) && IsMenuVisible())
@@ -74,21 +82,46 @@ void SLM::SkyrimLightsMenu::SetMenuVisibility(bool setVisible)
 
 	if (setVisible)
 	{
-		RE::PlaySound("UIJournalTabsSD");
-		io.MouseDrawCursor = true;
-		io.MousePos        = { SLM::GetScreenSize().width * 0.5f, SLM::GetScreenSize().height * 0.5f };
+		scene.hideMenu = false;
 
+		// Show ImGui mouse
+		{
+			io.WantCaptureMouse = true;
+			io.MouseDrawCursor  = true;
+		}
+
+		// Show game menus
+		{
+			const auto UI = RE::UI::GetSingleton();
+			UI->ShowMenus(false);
+		}
+
+		// Enter free camera mode
 		if (!RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
 		{
 			RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(true);
 			SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
 		}
+
+		RE::PlaySound("UIJournalTabsSD");
 	}
 	else
 	{
 		RE::PlaySound("UIMenuCancel");
-		io.MouseDrawCursor = false;
 
+		// Hide ImGui mouse
+		{
+			io.MouseDrawCursor  = false;
+			io.WantCaptureMouse = false;
+		}
+
+		// Show game menus
+		{
+			const auto UI = RE::UI::GetSingleton();
+			UI->ShowMenus(true);
+		}
+
+		// Exit free camera mode
 		if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
 		{
 			RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(true);
@@ -98,8 +131,6 @@ void SLM::SkyrimLightsMenu::SetMenuVisibility(bool setVisible)
 
 	isVisible = setVisible;
 }
-
-SLM::InputManager& SLM::SkyrimLightsMenu::GetInputManager() { return inputManager; }
 
 void SLM::SkyrimLightsMenu::SetImGuiStyle()
 {
@@ -117,6 +148,7 @@ void SLM::SkyrimLightsMenu::SetImGuiStyle()
 	style->ScrollbarRounding = 9.0f;
 	style->GrabMinSize       = 5.0f;
 	style->GrabRounding      = 3.0f;
+	style->DisabledAlpha     = 0.0f;
 
 	style->Colors[ImGuiCol_Text]                 = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
 	style->Colors[ImGuiCol_TextDisabled]         = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
@@ -157,7 +189,7 @@ void SLM::SkyrimLightsMenu::SetImGuiStyle()
 
 inline void SLM::SkyrimLightsMenu::ToggleShowDemo() { showDemo = !showDemo; }
 
-bool SLM::SkyrimLightsMenu::AllowInput(RE::InputEvent* event)
+bool SLM::SkyrimLightsMenu::AllowGameInput(RE::InputEvent* event)
 {
 	const auto* buttonEvt  = event->AsButtonEvent();
 	const auto* controlMap = RE::ControlMap::GetSingleton();
@@ -169,5 +201,14 @@ bool SLM::SkyrimLightsMenu::AllowInput(RE::InputEvent* event)
 							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Back", buttonEvt->GetDevice()) ||
 							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Strafe Left", buttonEvt->GetDevice()) ||
 							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Strafe Right", buttonEvt->GetDevice()))) ||
-	       (event->GetEventType() == RE::INPUT_EVENT_TYPE::kMouseMove && scene.allowLookAround);
+	       (event->GetDevice() == RE::INPUT_DEVICE::kMouse && scene.hideMenu);
+}
+
+bool SLM::SkyrimLightsMenu::AllowImGuiInput(RE::InputEvent* event)
+{
+	if (!scene.hideMenu)
+		return true;
+
+	// Block all mouse input
+	return !(event->GetDevice() == RE::INPUT_DEVICE::kMouse);
 }

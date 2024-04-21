@@ -43,4 +43,18 @@ namespace SLM
 
 		return ret;
 	}
+
+
+	inline void EulerToMatrix(RE::NiMatrix3* dst, float x, float y, float z)
+	{
+		dst->entry[0][0] = cos(y) * cos(z);
+		dst->entry[0][1] = -cos(y) * sin(z);
+		dst->entry[0][2] = sin(y);
+		dst->entry[1][0] = cos(z) * sin(x) * sin(y) + cos(x) * sin(z);
+		dst->entry[1][1] = cos(x) * cos(z) - sin(x) * sin(y) * sin(z);
+		dst->entry[1][2] = -cos(y) * sin(x);
+		dst->entry[2][0] = -cos(x) * cos(z) * sin(y) + sin(x) * sin(z);
+		dst->entry[2][1] = cos(z) * sin(x) + cos(x) * sin(y) * sin(z);
+		dst->entry[2][2] = cos(x) * cos(y);
+	}
 }

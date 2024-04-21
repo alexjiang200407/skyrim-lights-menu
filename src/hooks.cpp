@@ -131,7 +131,7 @@ void SLM::Hooks::SendInputEvent::thunk(RE::BSTEventSource<RE::InputEvent*>* disp
 {
 	if (ppEvent)
 	{
-		SLM::SkyrimLightsMenu::GetSingleton()->GetInputManager().ProcessInputEvent(ppEvent);
+		SLM::SkyrimLightsMenu::GetSingleton()->ProcessInputEvent(ppEvent);
 	}
 
 	if (!SLM::SkyrimLightsMenu::GetSingleton()->IsMenuVisible())
@@ -141,39 +141,7 @@ void SLM::Hooks::SendInputEvent::thunk(RE::BSTEventSource<RE::InputEvent*>* disp
 	// Menu is visible but allow player movement to be handled
 	else if (ppEvent)
 	{
-		bool flag = true;
-		RE::InputEvent* prev = nullptr;
-
-		RE::InputEvent** eventsList = const_cast<RE::InputEvent**>(ppEvent);
-
-		for (auto* it = *ppEvent; it; it = it->next)
-		{
-			if (!SLM::SkyrimLightsMenu::GetSingleton()->AllowInput(it))
-			{
-				if (prev != nullptr)
-				{
-					prev->next = it->next;
-				}
-				else
-				{
-					*eventsList = it->next;
-				}
-			}
-			else
-			{
-				prev = it;
-			}
-		}
-
-		//				logger::info("Can process this!!");
-		//auto* tmp = it->next;
-		//logger::info("{}", (void*)tmp);
-		//it->next = nullptr;
-		//func(dispatcher, &it);
-		//it->next = tmp;
-		//logger::info("{}", (void*)tmp);
-
-		func(dispatcher, eventsList);
+		func(dispatcher, SLM::SkyrimLightsMenu::GetSingleton()->FilterGameInput(ppEvent));
 	}
 	else
 	{

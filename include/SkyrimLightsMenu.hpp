@@ -5,7 +5,8 @@
 namespace SLM
 {
 	class SkyrimLightsMenu :
-		public SLM::Singleton<SkyrimLightsMenu>
+		public SLM::Singleton<SkyrimLightsMenu>,
+		public SLM::InputManager
 	{
 	public:
 	public:
@@ -15,23 +16,21 @@ namespace SLM
 		SkyrimLightsMenu& operator=(SkyrimLightsMenu&&)      = delete;
 
 	public:
-		void          DoFrame();
-		bool          IsMenuVisible() const;
-		void          HideMenu();
-		void          ToggleMenu();
-		void          SetMenuVisibility(bool setVisible);
-		InputManager& GetInputManager();
-		static void   SetImGuiStyle();
+		void        DoFrame();
+		bool        IsMenuVisible() const;
+		void        HideMenu();
+		void        ToggleMenu();
+		void        SetMenuVisibility(bool setVisible);
+		static void SetImGuiStyle();
+		void        ToggleShowDemo();
 
-		void          ToggleShowDemo();
-
-		bool          AllowInput(RE::InputEvent* event);
-
+	public:
+		bool AllowGameInput(RE::InputEvent* event) override;   // Allow input to passed to game
+		bool AllowImGuiInput(RE::InputEvent* event) override;  // Allow input to be passed to ImGui
 
 	private:
-		Scene        scene;
-		InputManager inputManager;
-		bool         isVisible = false;
-		bool         showDemo  = false;
+		Scene scene;
+		bool  isVisible = false;
+		bool  showDemo  = false;
 	};
 }
