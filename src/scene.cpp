@@ -34,7 +34,7 @@ void SLM::Scene::DrawControlWindow()
 
 		if (ImGui::TabItemButton("+", ImGuiTabItemFlags_Trailing | ImGuiTabItemFlags_NoTooltip))
 		{
-			PlaceProp(RE::TESForm::LookupByID(0xfe044800)->As<RE::TESBoundObject>());
+			PlaceProp();
 		}
 	}
 	ImGui::EndTabBar();
@@ -62,7 +62,7 @@ void SLM::Scene::DrawControlWindow()
 		}
 
 		if (ImGui::Button("Add Light"))
-			PlaceProp(RE::TESForm::LookupByID(0xfe044800)->As<RE::TESBoundObject>());
+			PlaceProp();
 	}
 	ImGui::EndChild();
 
@@ -112,7 +112,7 @@ void SLM::Scene::Deactivate()
 	}
 }
 
-void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)
+void SLM::Scene::PlaceProp()
 {
 	if (props.size() >= maxProps)
 	{
@@ -141,8 +141,9 @@ void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)
 
 
 	// lightBaseObj->SetFormID();
-	lightBaseObj->data = obj->As<RE::TESObjectLIGH>()->data;
-	lightBaseObj->SetFormID(FindAvailableFormID(), false);
+	RE::FormID id      = FindAvailableFormID();
+	lightBaseObj->data = RE::TESForm::LookupByID(id)->As<RE::TESObjectLIGH>()->data;
+	lightBaseObj->SetFormID(id, false);
 
 	auto newPropRef = RE::TESDataHandler::GetSingleton()->CreateReferenceAtLocation(
 		lightBaseObj->As<RE::TESBoundObject>(), origin, { 0.0f, 0.0f, 0.0f }, playerRef->GetParentCell(), playerRef->GetWorldspace(),

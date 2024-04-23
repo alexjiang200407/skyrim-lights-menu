@@ -19,7 +19,7 @@ namespace SLM
 	public:
 		void               Activate();
 		void               Deactivate();
-		void               PlaceProp(RE::TESBoundObject* obj);
+		void               PlaceProp();
 		void               ClearScene();
 		std::vector<Prop>& GetProps() { return props; }
 		void               ToggleAI();
