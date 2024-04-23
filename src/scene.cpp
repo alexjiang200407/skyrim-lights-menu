@@ -5,7 +5,7 @@
 
 void SLM::Scene::DrawControlWindow()
 {
-	int activePropIndex = -1;
+	activePropIndex = -1;
 
 	// Draw Tabs of all props
 	ImGui::BeginTabBar("##propstabbar", ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_FittingPolicyScroll);
@@ -65,6 +65,51 @@ void SLM::Scene::DrawControlWindow()
 			PlaceProp(RE::TESForm::LookupByID(0xfe044800)->As<RE::TESBoundObject>());
 	}
 	ImGui::EndChild();
+
+	//ImGui::BeginChild("##CurrentLightWindow", ImVec2(0, 200), true);
+	//{
+	//	ImGui::Text("Position:");
+
+	//	ImGui::Checkbox("Follow cursor", &followCrosshair);
+	//	if (followCrosshair && activePropIndex != -1)
+	//	{
+	//		props[activePropIndex].MoveToCameraLookingAt(crosshairDistance);
+	//	}
+	//	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Cursor Distance").x - ImGui::GetStyle().ItemSpacing.x);
+	//	ImGui::SliderFloat("Cursor Distance", &crosshairDistance, 0.0f, 500.0f);
+	//	ImGui::PopItemWidth();
+	//}
+	//ImGui::EndChild();
+
+	if (positioningProp && activePropIndex != -1)
+	{
+		props[activePropIndex].MoveToCameraLookingAt(crosshairDistance);
+	}
+}
+
+void SLM::Scene::Activate()
+{
+	lookAround      = false;
+	positioningProp = false;
+
+	// Enter free camera mode
+	if (!RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
+	{
+		RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(false);
+		SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
+	}
+
+	RE::Main::GetSingleton()->freezeTime = true;
+}
+
+void SLM::Scene::Deactivate()
+{
+	// Exit free camera mode
+	if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
+	{
+		RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(false);
+		SLM::PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
+	}
 }
 
 void SLM::Scene::PlaceProp(RE::TESBoundObject* obj)
@@ -128,7 +173,7 @@ void SLM::Scene::ToggleAI()
 
 bool SLM::Scene::IsHidden() const
 {
-	return Prop::followCrosshair || lookAround;
+	return positioningProp || lookAround;
 }
 
 void SLM::Scene::Serialize(SKSE::SerializationInterface* intfc) const
@@ -155,8 +200,6 @@ void SLM::Scene::Deserialize(SKSE::SerializationInterface* intfc)
 		prop.Deserialize(intfc);
 
 		props.push_back(prop);
-
-
 	}
 }
 
@@ -181,4 +224,12 @@ RE::FormID SLM::Scene::FindAvailableFormID()
 
 	logger::error("Could not find available id");
 	return 0;
+}
+
+void SLM::Scene::ImGuiGoBack()
+{
+	if (positioningProp)
+		positioningProp = false;
+	else
+		lookAround = !lookAround;
 }

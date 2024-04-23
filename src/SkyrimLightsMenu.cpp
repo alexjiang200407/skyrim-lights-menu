@@ -35,7 +35,7 @@ void SLM::SkyrimLightsMenu::DoFrame()
 			}
 			// Draw main window
 			bool open = true;
-			ImGui::BeginDisabled(scene.lookAround || Prop::followCrosshair);
+			ImGui::BeginDisabled(scene.IsHidden());
 			if (ImGui::Begin("##Main", &open))
 			{
 				scene.DrawControlWindow();
@@ -55,6 +55,10 @@ void SLM::SkyrimLightsMenu::DoFrame()
 		logger::trace("Toggle menu");
 		ToggleMenu();
 	}
+	if (ImGui::IsKeyPressed(ImGuiKey_P, false))
+	{
+		scene.StartPositioning();
+	}
 	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
 	{
 		logger::trace("Hiding menu");
@@ -62,12 +66,7 @@ void SLM::SkyrimLightsMenu::DoFrame()
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
 	{
-		logger::info("Toggle Look around");
-
-		if (Prop::followCrosshair) 
-			Prop::followCrosshair = false;
-		else
-			scene.lookAround = !scene.lookAround;
+		scene.ImGuiGoBack();
 	}
 #ifdef DEBUG
 	else if (ImGui::IsKeyPressed(ImGuiKey_H) && IsMenuActive())
@@ -95,40 +94,25 @@ void SLM::SkyrimLightsMenu::SetMenuActive(bool setActive)
 
 	if (setActive)
 	{
-		scene.lookAround = false;
-		Prop::followCrosshair = false;
 
 		// Show ImGui mouse
 		{
 			io.WantCaptureMouse = true;
 			io.MouseDrawCursor  = true;
 		}
-
-		// Enter free camera mode
-		if (!RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
-		{
-			RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(true);
-			SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
-		}
-
+		scene.Activate();
 		RE::PlaySound("UIJournalTabsSD");
 	}
 	else
 	{
-		RE::PlaySound("UIMenuCancel");
 
 		// Hide ImGui mouse
 		{
 			io.MouseDrawCursor  = false;
 			io.WantCaptureMouse = false;
 		}
-
-		// Exit free camera mode
-		if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
-		{
-			RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(true);
-			SLM::PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
-		}
+		scene.Deactivate();
+		RE::PlaySound("UIMenuCancel");
 	}
 
 	IsActive = setActive;

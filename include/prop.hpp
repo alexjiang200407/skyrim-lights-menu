@@ -30,9 +30,7 @@ namespace SLM
 		void              Remove();
 		void              Reload3D();
 		RE::FormID        GetBaseID() const { return lightBase->GetFormID(); }
-	public:
-		static bool followCrosshair;
-
+		void              MoveToCameraLookingAt(float distanceFromCamera);
 	private:
 		bool DrawLightIntensityControlWindow();
 
@@ -44,6 +42,5 @@ namespace SLM
 		Palette              palette;
 		LightType            lightType;
 		Rgb                  lightColor;
-		static float         crosshairDistance;
 	};
 }

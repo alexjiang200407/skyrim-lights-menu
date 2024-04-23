@@ -1,9 +1,6 @@
 #include "prop.hpp"
 #include "util.hpp"
 
-bool  SLM::Prop::followCrosshair   = false;
-float SLM::Prop::crosshairDistance = 50.0f;
-
 bool SLM::Prop::DrawTabItem(bool* isSelected = nullptr)
 {
 	bool open     = true;
@@ -55,6 +52,13 @@ void SLM::Prop::Reload3D()
 	ref->SetPosition(ref->GetPosition());
 }
 
+void SLM::Prop::MoveToCameraLookingAt(float distanceFromCamera)
+{
+	auto cameraNode = RE::PlayerCamera::GetSingleton()->cameraRoot.get()->AsNode();
+	auto cameraNI   = reinterpret_cast<RE::NiCamera*>((cameraNode->GetChildren().size() == 0) ? nullptr : cameraNode->GetChildren()[0].get());
+	ref->SetPosition(GetCameraPosition() + (cameraNI->world.rotate * RE::NiPoint3{ distanceFromCamera, 0.0f, 0.0f }));
+}
+
 bool SLM::Prop::DrawLightIntensityControlWindow()
 {
 	bool        changed = false;
@@ -103,35 +107,5 @@ void SLM::Prop::DrawControlWindow()
 
 	// Reload the 3d
 	if (changed)
-	{
-		logger::info("REload 3d");
 		Reload3D();
-	}
-
-	ImGui::BeginChild("##LightPlacementWindow", ImVec2(0, 200), true);
-	{
-		ImGui::Text("Position:");
-
-		ImGui::Checkbox("Follow cursor", &followCrosshair);
-		if (followCrosshair)
-		{
-			auto cameraNode = RE::PlayerCamera::GetSingleton()->cameraRoot.get()->AsNode();
-			auto cameraNI   = reinterpret_cast<RE::NiCamera*>((cameraNode->GetChildren().size() == 0) ? nullptr : cameraNode->GetChildren()[0].get());
-			ref->SetPosition(GetCameraPosition() + (cameraNI->world.rotate * RE::NiPoint3{ crosshairDistance, 0.0f, 0.0f }));
-		}
-		ImGui::SliderFloat("Cursor Distance", &crosshairDistance, 0.0f, 500.0f);
-
-		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("x").x - ImGui::GetStyle().ItemSpacing.x);
-
-		bool changed = ImGui::DragFloat("x", &movePos.x, 1.0f, -100.0f, 100.0f);
-		changed |= ImGui::DragFloat("y", &movePos.y, 1.0f, -100.0f, 100.0f);
-		changed |= ImGui::DragFloat("z", &movePos.z, 1.0f, -100.0f, 100.0f);
-		if (changed)
-		{
-			ref->SetPosition(startingPos + movePos);
-		}
-
-		ImGui::PopItemWidth();
-	}
-	ImGui::EndChild();
 }

@@ -1,6 +1,6 @@
 #include "lightType.hpp"
 
-const char* SLM::LightType::shadowTypeNames[] = { "None", "Shadow Hemisphere", "Omnidirectional Shadow" };
+const char* SLM::LightType::shadowTypeNames[] = { "None", "Hemisphere", "Omnidirectional" };
 
 enum SHADOW_TYPE_INDEX
 {
@@ -22,11 +22,11 @@ SLM::LightType::LightType(SKSE::stl::enumeration<RE::TES_LIGHT_FLAGS, uint32_t>*
 
 bool SLM::LightType::DrawLightTypeControlWindow()
 {
-	bool changed        = false;
+	bool changed = false;
 
 	ImGui::BeginChild("##LightPropertiesControlWindow", ImVec2(0, 100), true);
 	{
-		ImGui::Text("Light Shadow Type:");
+		ImGui::Text("Shadow Type:");
 
 		for (int i = 0; i < shadowTypeCount; i++)
 		{
@@ -34,7 +34,6 @@ bool SLM::LightType::DrawLightTypeControlWindow()
 				ImGui::SameLine();
 			changed |= ImGui::RadioButton(shadowTypeNames[i], &selectedLightIndex, i);
 		}
-
 	}
 	ImGui::EndChild();
 

@@ -17,6 +17,8 @@ namespace SLM
 		void DrawControlWindow();
 
 	public:
+		void               Activate();
+		void               Deactivate();
 		void               PlaceProp(RE::TESBoundObject* obj);
 		void               ClearScene();
 		std::vector<Prop>& GetProps() { return props; }
@@ -25,14 +27,19 @@ namespace SLM
 		void               Serialize(SKSE::SerializationInterface* intfc) const;
 		void               Deserialize(SKSE::SerializationInterface* intfc);
 		RE::FormID         FindAvailableFormID();
+		void               ImGuiGoBack();
+		void               StartPositioning() { positioningProp = true; }
+		void               StopPositioning() { positioningProp = false; }
 
 	public:
-		bool lookAround = false;
-
 	private:
+		bool                              lookAround      = false;
+		bool                              positioningProp = false;
 		std::vector<Prop>                 props;
-		static constexpr int              maxProps   = 7;
-		static constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration;
-		static constexpr ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll;
+		int                               activePropIndex   = -1;
+		float                             crosshairDistance = 50.0f;
+		static constexpr int              maxProps          = 7;
+		static constexpr ImGuiWindowFlags windowFlags       = ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration;
+		static constexpr ImGuiTabBarFlags tabBarFlags       = ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll;
 	};
 }
