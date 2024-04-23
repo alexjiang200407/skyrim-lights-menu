@@ -7,17 +7,27 @@ namespace SLM
 
 	class Palette
 	{
+	private:
+		enum SelectionMode : int
+		{
+			kPresetColor = 0,
+			kCustomColor = 1,
+		};
+
 	public:
 		Rgb                 DrawControlWindow();
 		int                 GetColorCount() const { return colorCount; }
+		int                 GetCurrentPresetIndex() const { return chosenPresetIndex; }
+		void                Serialize(SKSE::SerializationInterface* intfc) const;
+		void                Deserialize(SKSE::SerializationInterface* intfc);
 		static const char*  GetColorsNames(size_t index);
 		static const Color* GetColors() { return colors.get(); }
 		static void         LoadPaletteFile();
 
 	private:
-		int                               chosenPresetIndex = 0;
-		int                               chooseCustomColor = 0;
-		float                             customColor[3]    = { 0.0f, 0.0f, 0.0f };
+		int                               chosenPresetIndex  = 0;
+		enum SelectionMode                colorSelectionMode = kPresetColor;
+		float                             customColor[3]     = { 0.0f, 0.0f, 0.0f };
 		static int                        colorCount;
 		static std::unique_ptr<Color[]>   colors;
 		static constexpr std::string_view filePath = "./Data/SKSE/Plugins/SkyrimLightsMenu.json"sv;

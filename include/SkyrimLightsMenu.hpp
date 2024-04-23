@@ -16,13 +16,16 @@ namespace SLM
 		SkyrimLightsMenu& operator=(SkyrimLightsMenu&&)      = delete;
 
 	public:
+		void        Serialize(SKSE::SerializationInterface* intfc) const;
+		void        Deserialize(SKSE::SerializationInterface* intfc);
 		void        DoFrame();
-		bool        IsMenuVisible() const;
-		void        HideMenu();
+		bool        IsMenuActive() const;
+		void        Deactivate();
 		void        ToggleMenu();
-		void        SetMenuVisibility(bool setVisible);
+		void        SetMenuActive(bool setVisible);
 		static void SetImGuiStyle();
 		void        ToggleShowDemo();
+		void        Revert();
 
 	public:
 		bool AllowGameInput(RE::InputEvent* event) override;   // Allow input to passed to game
@@ -30,7 +33,7 @@ namespace SLM
 
 	private:
 		Scene scene;
-		bool  isVisible = false;
+		bool  IsActive = false;
 		bool  showDemo  = false;
 	};
 }

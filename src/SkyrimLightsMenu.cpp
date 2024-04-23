@@ -1,8 +1,19 @@
 #include "SkyrimLightsMenu.hpp"
 
+void SLM::SkyrimLightsMenu::Serialize(SKSE::SerializationInterface* intfc) const
+{
+	scene.Serialize(intfc);
+}
+
+void SLM::SkyrimLightsMenu::Deserialize(SKSE::SerializationInterface* intfc)
+{
+	scene.GetProps().clear();
+	scene.Deserialize(intfc);
+}
+
 void SLM::SkyrimLightsMenu::DoFrame()
 {
-	if (IsMenuVisible())
+	if (IsMenuActive())
 	{
 		if (showDemo)
 		{
@@ -22,21 +33,19 @@ void SLM::SkyrimLightsMenu::DoFrame()
 				ImGui::SetNextWindowSize(ImVec2{ viewportSz.x * 0.3f, viewportSz.y * 0.8f });
 				firstOpen = false;
 			}
-			ImGuiWindowFlags flags = scene.hideMenu ? ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground : 0;
-
 			// Draw main window
 			bool open = true;
-			if (ImGui::Begin("##Main", &open, flags))
+			ImGui::BeginDisabled(scene.lookAround || Prop::followCrosshair);
+			if (ImGui::Begin("##Main", &open))
 			{
-				ImGui::BeginDisabled(scene.hideMenu);
 				scene.DrawControlWindow();
-				ImGui::EndDisabled();
 			}
 
 			if (!open)
-				SetMenuVisibility(false);
+				SetMenuActive(false);
 
 			ImGui::End();
+			ImGui::EndDisabled();
 		}
 	}
 
@@ -49,51 +58,50 @@ void SLM::SkyrimLightsMenu::DoFrame()
 	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
 	{
 		logger::trace("Hiding menu");
-		HideMenu();
+		Deactivate();
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
 	{
 		logger::info("Toggle Look around");
-		scene.hideMenu = !scene.hideMenu;
+
+		if (Prop::followCrosshair) 
+			Prop::followCrosshair = false;
+		else
+			scene.lookAround = !scene.lookAround;
 	}
 #ifdef DEBUG
-	else if (ImGui::IsKeyPressed(ImGuiKey_H) && IsMenuVisible())
+	else if (ImGui::IsKeyPressed(ImGuiKey_H) && IsMenuActive())
 	{
 		ToggleShowDemo();
 	}
 #endif
 }
 
-inline bool SLM::SkyrimLightsMenu::IsMenuVisible() const { return isVisible; }
+inline bool SLM::SkyrimLightsMenu::IsMenuActive() const { return IsActive; }
 
-void SLM::SkyrimLightsMenu::HideMenu()
+void SLM::SkyrimLightsMenu::Deactivate()
 {
-	SetMenuVisibility(false);
+	SetMenuActive(false);
 }
 
 void SLM::SkyrimLightsMenu::ToggleMenu()
 {
-	SetMenuVisibility(!isVisible);
+	SetMenuActive(!IsActive);
 }
 
-void SLM::SkyrimLightsMenu::SetMenuVisibility(bool setVisible)
+void SLM::SkyrimLightsMenu::SetMenuActive(bool setActive)
 {
 	auto& io = ImGui::GetIO();
 
-	if (setVisible)
+	if (setActive)
 	{
-		scene.hideMenu = false;
+		scene.lookAround = false;
+		Prop::followCrosshair = false;
 
 		// Show ImGui mouse
 		{
 			io.WantCaptureMouse = true;
 			io.MouseDrawCursor  = true;
-		}
-
-		// Show game menus
-		{
-			const auto UI = RE::UI::GetSingleton();
-			UI->ShowMenus(false);
 		}
 
 		// Enter free camera mode
@@ -115,12 +123,6 @@ void SLM::SkyrimLightsMenu::SetMenuVisibility(bool setVisible)
 			io.WantCaptureMouse = false;
 		}
 
-		// Show game menus
-		{
-			const auto UI = RE::UI::GetSingleton();
-			UI->ShowMenus(true);
-		}
-
 		// Exit free camera mode
 		if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
 		{
@@ -129,7 +131,7 @@ void SLM::SkyrimLightsMenu::SetMenuVisibility(bool setVisible)
 		}
 	}
 
-	isVisible = setVisible;
+	IsActive = setActive;
 }
 
 void SLM::SkyrimLightsMenu::SetImGuiStyle()
@@ -148,7 +150,7 @@ void SLM::SkyrimLightsMenu::SetImGuiStyle()
 	style->ScrollbarRounding = 9.0f;
 	style->GrabMinSize       = 5.0f;
 	style->GrabRounding      = 3.0f;
-	style->DisabledAlpha     = 0.0f;
+	style->DisabledAlpha     = 0.3f;
 
 	style->Colors[ImGuiCol_Text]                 = ImVec4(0.80f, 0.80f, 0.83f, 1.00f);
 	style->Colors[ImGuiCol_TextDisabled]         = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
@@ -189,6 +191,11 @@ void SLM::SkyrimLightsMenu::SetImGuiStyle()
 
 inline void SLM::SkyrimLightsMenu::ToggleShowDemo() { showDemo = !showDemo; }
 
+void SLM::SkyrimLightsMenu::Revert()
+{
+	scene.GetProps().clear();
+}
+
 bool SLM::SkyrimLightsMenu::AllowGameInput(RE::InputEvent* event)
 {
 	const auto* buttonEvt  = event->AsButtonEvent();
@@ -201,12 +208,12 @@ bool SLM::SkyrimLightsMenu::AllowGameInput(RE::InputEvent* event)
 							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Back", buttonEvt->GetDevice()) ||
 							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Strafe Left", buttonEvt->GetDevice()) ||
 							 buttonEvt->GetIDCode() == controlMap->GetMappedKey("Strafe Right", buttonEvt->GetDevice()))) ||
-	       (event->GetDevice() == RE::INPUT_DEVICE::kMouse && scene.hideMenu);
+	       (event->GetDevice() == RE::INPUT_DEVICE::kMouse && scene.IsHidden());
 }
 
 bool SLM::SkyrimLightsMenu::AllowImGuiInput(RE::InputEvent* event)
 {
-	if (!scene.hideMenu)
+	if (!scene.IsHidden())
 		return true;
 
 	// Block all mouse input

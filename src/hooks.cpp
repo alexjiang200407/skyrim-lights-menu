@@ -134,7 +134,7 @@ void SLM::Hooks::SendInputEvent::thunk(RE::BSTEventSource<RE::InputEvent*>* disp
 		SLM::SkyrimLightsMenu::GetSingleton()->ProcessInputEvent(ppEvent);
 	}
 
-	if (!SLM::SkyrimLightsMenu::GetSingleton()->IsMenuVisible())
+	if (!SLM::SkyrimLightsMenu::GetSingleton()->IsMenuActive())
 	{
 		func(dispatcher, ppEvent);
 	}

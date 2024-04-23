@@ -24,23 +24,35 @@ bool SLM::Prop::DrawTabItem(bool* isSelected = nullptr)
 	return open;
 }
 
+void SLM::Prop::Serialize(SKSE::SerializationInterface* intfc) const
+{
+	intfc->WriteRecordData(ref->GetFormID());
+	palette.Serialize(intfc);
+	intfc->WriteRecordData(lightBase->data);
+	intfc->WriteRecordData(lightBase->fade);
+}
+
+void SLM::Prop::Deserialize(SKSE::SerializationInterface* intfc)
+{
+	palette.Deserialize(intfc);
+	intfc->ReadRecordData(lightBase->data);
+	lightType = &lightBase->data.flags;
+	intfc->ReadRecordData(lightBase->fade);
+}
+
 void SLM::Prop::Remove()
 {
 	ref->Disable();
 	ref->SetDelete(true);
-	lightBase->SetDelete(true);
 
 	logger::info("Deleting ref 0x{:X}", ref->GetFormID());
-	logger::info("Deleting base object 0x{:X}", lightBase->GetFormID());
 }
 
 void SLM::Prop::Reload3D()
 {
-	// Reloads the 3D light model
-	// Hopefully it doesn't leak memory
-	ref->Release3DRelatedData();
-	ref->ClearData();
-	ref->Load3D(false);
+	// This reloads the 3d
+	// Maybe change later
+	ref->SetPosition(ref->GetPosition());
 }
 
 bool SLM::Prop::DrawLightIntensityControlWindow()

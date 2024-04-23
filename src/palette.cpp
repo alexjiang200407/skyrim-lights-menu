@@ -1,16 +1,16 @@
 #include "palette.hpp"
+#include "imguiUtil.hpp"
 #include <fstream>
 #include <nlohmann/json.hpp>
-#include "imguiUtil.hpp"
 
 std::unique_ptr<SLM::Color[]> SLM::Palette::colors;
 int                           SLM::Palette::colorCount;
 
 SLM::Rgb SLM::Palette::DrawControlWindow()
 {
-	ImGui::RadioButton("Preset Color", &chooseCustomColor, 0);
+	ImGui::RadioButton("Preset Color", reinterpret_cast<int*>(&colorSelectionMode), 0);
 	ImGui::SameLine();
-	ImGui::RadioButton("Custom Color", &chooseCustomColor, 1);
+	ImGui::RadioButton("Custom Color", reinterpret_cast<int*>(&colorSelectionMode), 1);
 
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 	ImGui::Combo(
@@ -18,19 +18,32 @@ SLM::Rgb SLM::Palette::DrawControlWindow()
 		{ 
 			*out_pcstr = GetColorsNames(idx);
 
-			return true;
-		}, nullptr,
-		GetColorCount()
-	);
+			return true; },
+		nullptr,
+		GetColorCount());
 
 	ImGui::ColorEdit3("Color", customColor);
 
-	if (chooseCustomColor == 1)
+	if (colorSelectionMode == 1)
 	{
 		return Rgb{ uint8_t(customColor[0] * 255), uint8_t(customColor[1] * 255), uint8_t(customColor[2] * 255) };
 	}
 	ImGui::PopItemWidth();
 	return std::get<1>(colors[chosenPresetIndex]);
+}
+
+void SLM::Palette::Serialize(SKSE::SerializationInterface* intfc) const
+{
+	intfc->WriteRecordData(chosenPresetIndex);
+	intfc->WriteRecordData(colorSelectionMode);
+	intfc->WriteRecordData(customColor);
+}
+
+void SLM::Palette::Deserialize(SKSE::SerializationInterface* intfc)
+{
+	intfc->ReadRecordData(chosenPresetIndex);
+	intfc->ReadRecordData(colorSelectionMode);
+	intfc->ReadRecordData(customColor);
 }
 
 const char* SLM::Palette::GetColorsNames(size_t index)

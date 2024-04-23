@@ -3,6 +3,7 @@
 #include "SKSE/SKSE.h"
 #include "Version.h"
 #include "palette.hpp"
+#include "serialization.hpp"
 
 namespace SLM
 {
@@ -44,6 +45,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * sk
 
 	SKSE::Init(skse);
 	SLM::Hooks::Install();
+	SLM::Serialization::RegisterSerialization();
 
 	// Once all plugins and mods are loaded, then the ~ console is ready and
 	// can be printed to

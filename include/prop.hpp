@@ -1,6 +1,7 @@
 #pragma once
 #include "lightType.hpp"
 #include "palette.hpp"
+#include "serialization.hpp"
 
 namespace SLM
 {
@@ -23,11 +24,14 @@ namespace SLM
 		bool DrawTabItem(bool* isSelected);
 		void DrawControlWindow();
 
-
 	public:
-		void Remove();
-		void Reload3D();
-
+		void              Serialize(SKSE::SerializationInterface* intfc) const;
+		void              Deserialize(SKSE::SerializationInterface* intfc);
+		void              Remove();
+		void              Reload3D();
+		RE::FormID        GetBaseID() const { return lightBase->GetFormID(); }
+	public:
+		static bool followCrosshair;
 
 	private:
 		bool DrawLightIntensityControlWindow();
@@ -40,7 +44,6 @@ namespace SLM
 		Palette              palette;
 		LightType            lightType;
 		Rgb                  lightColor;
-		static bool          followCrosshair;
 		static float         crosshairDistance;
 	};
 }

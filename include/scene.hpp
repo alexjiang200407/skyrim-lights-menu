@@ -21,11 +21,17 @@ namespace SLM
 		void               ClearScene();
 		std::vector<Prop>& GetProps() { return props; }
 		void               ToggleAI();
+		bool               IsHidden() const;
+		void               Serialize(SKSE::SerializationInterface* intfc) const;
+		void               Deserialize(SKSE::SerializationInterface* intfc);
+		RE::FormID         FindAvailableFormID();
 
 	public:
-		bool                              hideMenu = false;
+		bool lookAround = false;
+
 	private:
 		std::vector<Prop>                 props;
+		static constexpr int              maxProps   = 7;
 		static constexpr ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDecoration;
 		static constexpr ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_FittingPolicyScroll;
 	};
