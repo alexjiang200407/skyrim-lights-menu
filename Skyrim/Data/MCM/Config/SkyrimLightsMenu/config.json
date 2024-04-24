@@ -1,0 +1,50 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Exit-9B/MCM-Helper/main/docs/config.schema.json",
+  "modName": "SkyrimLightsMenu",
+  "displayName": "$Title_Menu_Name",
+  "minMcmVersion": 13,
+  "pluginRequirements": [ "SkyrimLightsMenu.esp" ],
+  "cursorFillMode": "topToBottom",
+  "content": [
+    {
+      "text": "$Control_Config_Header",
+      "type": "header"
+    },
+    {
+      "id": "iOpenCloseMenuKey:Controls",
+      "text": "$Open_Close_Menu_Key",
+      "type": "keymap",
+      "ignoreConflicts": true,
+      "valueOptions": {
+        "sourceType": "ModSettingInt"
+      }
+    },
+    {
+      "id": "iBackKey:Controls",
+      "text": "$Back_Key",
+      "type": "keymap",
+      "ignoreConflicts": true,
+      "valueOptions": {
+        "sourceType": "ModSettingInt"
+      }
+    },
+    {
+      "id": "iPositionLightKey:Controls",
+      "text": "$Position_Light_Key",
+      "type": "keymap",
+      "ignoreConflicts": true,
+      "valueOptions": {
+        "sourceType": "ModSettingInt"
+      }
+    },
+    {
+      "id": "iLookAround:Controls",
+      "text": "$Look_Around_Key",
+      "type": "keymap",
+      "ignoreConflicts": true,
+      "valueOptions": {
+        "sourceType": "ModSettingInt"
+      }
+    }
+  ]
+}
