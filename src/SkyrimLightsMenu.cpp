@@ -196,3 +196,11 @@ bool SLM::SkyrimLightsMenu::AllowImGuiInput(RE::InputEvent* event)
 	// Block all mouse input
 	return !(event->GetDevice() == RE::INPUT_DEVICE::kMouse);
 }
+
+void SLM::SkyrimLightsMenu::PostSaveLoad()
+{
+	for (auto& prop : scene.GetProps())
+	{
+		prop.Reload3D();
+	}
+}

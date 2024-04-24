@@ -66,21 +66,6 @@ void SLM::Scene::DrawControlWindow()
 	}
 	ImGui::EndChild();
 
-	//ImGui::BeginChild("##CurrentLightWindow", ImVec2(0, 200), true);
-	//{
-	//	ImGui::Text("Position:");
-
-	//	ImGui::Checkbox("Follow cursor", &followCrosshair);
-	//	if (followCrosshair && activePropIndex != -1)
-	//	{
-	//		props[activePropIndex].MoveToCameraLookingAt(crosshairDistance);
-	//	}
-	//	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Cursor Distance").x - ImGui::GetStyle().ItemSpacing.x);
-	//	ImGui::SliderFloat("Cursor Distance", &crosshairDistance, 0.0f, 500.0f);
-	//	ImGui::PopItemWidth();
-	//}
-	//ImGui::EndChild();
-
 	if (positioningProp && activePropIndex != -1)
 	{
 		props[activePropIndex].MoveToCameraLookingAt(crosshairDistance);
@@ -97,12 +82,15 @@ void SLM::Scene::Activate()
 	{
 		previouslyInFreeCameraMode = false;
 		RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(false);
-		SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
+		RE::ControlMap::GetSingleton()->PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
 	}
 	else
 		previouslyInFreeCameraMode = true;
 
-	RE::Main::GetSingleton()->freezeTime = true;
+	if (RE::Main::GetSingleton()->freezeTime)
+		previouslyFreezeTime = true;
+	else
+		RE::Main::GetSingleton()->freezeTime = true;
 }
 
 void SLM::Scene::Deactivate()
@@ -111,10 +99,11 @@ void SLM::Scene::Deactivate()
 	if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode() && !previouslyInFreeCameraMode)
 	{
 		RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(false);
-		SLM::PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
+		RE::ControlMap::GetSingleton()->PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
 	}
 
-	RE::Main::GetSingleton()->freezeTime = false;
+	if (!previouslyFreezeTime)
+		RE::Main::GetSingleton()->freezeTime = false;
 }
 
 void SLM::Scene::PlaceProp()

@@ -31,6 +31,6 @@ namespace SLM
 		float                             customColor[3]     = { 0.0f, 0.0f, 0.0f };
 		static int                        colorCount;
 		static std::unique_ptr<Color[]>   colors;
-		static constexpr std::string_view filePath = "./Data/SKSE/Plugins/SkyrimLightsMenu.json"sv;
+		static constexpr std::string_view filePath = "./Data/SKSE/Plugins/SkyrimLightsMenuPresets.json"sv;
 	};
 }

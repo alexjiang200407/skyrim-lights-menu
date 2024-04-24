@@ -36,6 +36,7 @@ namespace SLM
 	public:
 	private:
 		bool                              previouslyInFreeCameraMode = false;
+		bool                              previouslyFreezeTime = false;
 		bool                              lookAround      = false;
 		bool                              positioningProp = false;
 		std::vector<Prop>                 props;

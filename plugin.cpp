@@ -56,6 +56,15 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface * sk
 			{
 				RE::ConsoleLog::GetSingleton()->Print("SkyrimLightsMenu has been loaded");
 			}
+			else if (message->type == SKSE::MessagingInterface::kPreLoadGame)
+			{
+				logger::info("Pre load game");
+			}
+			else if (message->type == SKSE::MessagingInterface::kPostLoadGame)
+			{
+				logger::info("Post load game");
+				SLM::SkyrimLightsMenu::GetSingleton()->PostSaveLoad();
+			}
 		});
 
 	return true;

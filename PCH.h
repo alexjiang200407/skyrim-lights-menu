@@ -48,32 +48,6 @@ namespace SLM
 			return &singleton;
 		}
 	};
-
-	struct ScreenSize
-	{
-		uint32_t width;
-		uint32_t height;
-	};
-
-	inline ScreenSize GetScreenSize()
-	{
-		// This is a global managed by Renderer, but not part of the RendererData struct.
-		// We pass back the value so users are not tempted to modify this directly.
-		REL::Relocation<ScreenSize*> singleton{ RELOCATION_ID(525002, 411483) };
-		return *singleton;
-	}
-
-	inline void PushInputContext(RE::ControlMap::InputContextID a_context)
-	{
-		REL::Relocation<void(RE::ControlMap*, RE::ControlMap::InputContextID)> func{ RELOCATION_ID(67243, 68543) };
-		return func(RE::ControlMap::GetSingleton(), a_context);
-	}
-
-	inline void PopInputContext(RE::ControlMap::InputContextID a_context)
-	{
-		REL::Relocation<void(RE::ControlMap*, RE::ControlMap::InputContextID)> func{ RELOCATION_ID(67244, 68544) };
-		return func(RE::ControlMap::GetSingleton(), a_context);
-	}
 }
 
 

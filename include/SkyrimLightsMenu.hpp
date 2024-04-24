@@ -26,6 +26,8 @@ namespace SLM
 		static void SetImGuiStyle();
 		void        ToggleShowDemo();
 		void        Revert();
+		void        PostSaveLoad();
+
 
 	public:
 		bool AllowGameInput(RE::InputEvent* event) override;   // Allow input to passed to game

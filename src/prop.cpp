@@ -46,10 +46,7 @@ void SLM::Prop::Deserialize(SKSE::SerializationInterface* intfc)
 	logger::info("Light color r: {}, g: {}, b: {}", lightBase->data.color.red, lightBase->data.color.green, lightBase->data.color.blue);
 
 	// Load 3D Model now
-	if (!ref->Is3DLoaded())
-		ref->Load3D(false);
-	else
-		Reload3D();
+	//ref->Load3D(false);
 }
 
 void SLM::Prop::Remove()
@@ -64,7 +61,8 @@ void SLM::Prop::Reload3D()
 {
 	// This reloads the 3d
 	// Maybe change later
-	ref->SetPosition(ref->GetPosition());
+	
+	 ref->SetPosition(ref->GetPosition());
 	//ref->Disable();
 	//ref->Enable(false);
 	//ref->Update3DPosition(true);

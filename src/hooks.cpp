@@ -65,7 +65,7 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 	Hooks::GetSingleton()->installedHooks.store(true);
 
 	{
-		static const auto screenSize         = SLM::GetScreenSize();
+		static const auto screenSize         = RE::BSGraphics::Renderer::GetSingleton()->GetScreenSize();
 		io.DisplaySize.x                     = static_cast<float>(screenSize.width);
 		io.DisplaySize.y                     = static_cast<float>(screenSize.height);
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
@@ -100,7 +100,7 @@ inline void SLM::Hooks::StopTimer::thunk(std::uint32_t timer)
 	ImGui_ImplWin32_NewFrame();
 
 	{
-		static const auto screenSize = SLM::GetScreenSize();
+		static const auto screenSize = RE::BSGraphics::Renderer::GetSingleton()->GetScreenSize();
 		auto&             io         = ImGui::GetIO();
 		io.DisplaySize.x             = static_cast<float>(screenSize.width);
 		io.DisplaySize.y             = static_cast<float>(screenSize.height);
