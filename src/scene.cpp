@@ -50,7 +50,7 @@ void SLM::Scene::DrawControlWindow()
 		ImGui::Checkbox("Hide Menu", &lookAround);
 		auto& io = ImGui::GetIO();
 
-		if (lookAround)
+		if (lookAround || positioningProp)
 		{
 			io.MouseDrawCursor      = false;
 			io.WantCaptureMouse     = false;
@@ -95,9 +95,12 @@ void SLM::Scene::Activate()
 	// Enter free camera mode
 	if (!RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
 	{
+		previouslyInFreeCameraMode = false;
 		RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(false);
 		SLM::PushInputContext(RE::ControlMap::InputContextID::kTFCMode);
 	}
+	else
+		previouslyInFreeCameraMode = true;
 
 	RE::Main::GetSingleton()->freezeTime = true;
 }
@@ -105,11 +108,13 @@ void SLM::Scene::Activate()
 void SLM::Scene::Deactivate()
 {
 	// Exit free camera mode
-	if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode())
+	if (RE::PlayerCamera::GetSingleton()->IsInFreeCameraMode() && !previouslyInFreeCameraMode)
 	{
 		RE::PlayerCamera::GetSingleton()->ToggleFreeCameraMode(false);
 		SLM::PopInputContext(RE::ControlMap::InputContextID::kTFCMode);
 	}
+
+	RE::Main::GetSingleton()->freezeTime = false;
 }
 
 void SLM::Scene::PlaceProp()
@@ -188,10 +193,11 @@ void SLM::Scene::Serialize(SKSE::SerializationInterface* intfc) const
 
 void SLM::Scene::Deserialize(SKSE::SerializationInterface* intfc)
 {
-	size_t savedPropsSz;
-	intfc->ReadRecordData(savedPropsSz);
+	size_t savedPropsCount;
+	intfc->ReadRecordData(savedPropsCount);
+	logger::info("Found {} saved props", savedPropsCount);
 
-	for (int i = 0; i < savedPropsSz; i++)
+	for (int i = 0; i < savedPropsCount; i++)
 	{
 		RE::FormID refId;
 		intfc->ReadRecordData(refId);
@@ -229,8 +235,6 @@ RE::FormID SLM::Scene::FindAvailableFormID()
 
 void SLM::Scene::ImGuiGoBack()
 {
-	if (positioningProp)
-		positioningProp = false;
-	else
-		lookAround = !lookAround;
+	positioningProp = false;
+	lookAround      = false;
 }

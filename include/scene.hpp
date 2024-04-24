@@ -30,9 +30,12 @@ namespace SLM
 		void               ImGuiGoBack();
 		void               StartPositioning() { positioningProp = true; }
 		void               StopPositioning() { positioningProp = false; }
+		void               TogglePositioning() { positioningProp = !positioningProp; }
+		void               ToggleLookAround() { lookAround = !lookAround; }
 
 	public:
 	private:
+		bool                              previouslyInFreeCameraMode = false;
 		bool                              lookAround      = false;
 		bool                              positioningProp = false;
 		std::vector<Prop>                 props;

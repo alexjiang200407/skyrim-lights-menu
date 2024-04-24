@@ -23,7 +23,7 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 		return;
 	}
 
-	const auto swapChain = renderer->data.renderWindows[0].swapChain;
+	const auto swapChain = (IDXGISwapChain*)renderer->data.renderWindows[0].swapChain;
 	if (!swapChain)
 	{
 		logger::error("couldn't find swapChain");
@@ -36,8 +36,8 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 		return;
 	}
 
-	const auto device  = renderer->data.forwarder;
-	const auto context = renderer->data.context;
+	const auto device  = (ID3D11Device*)renderer->data.forwarder;
+	const auto context = (ID3D11DeviceContext*)renderer->data.context;
 
 	logger::info("Initializing ImGui...");
 
@@ -46,7 +46,7 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 	auto& io = ImGui::GetIO();
 	io.ConfigFlags |= (ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_NoMouseCursorChange);
 
-	io.IniFilename                       = nullptr;
+	io.IniFilename                       = "./Data/SKSE/Plugins/SkyrimLightsMenuImGui.ini";
 	io.ConfigWindowsMoveFromTitleBarOnly = true;
 	io.MousePos                          = { io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f };
 

@@ -23,6 +23,7 @@ namespace SLM
 		static const char*  GetColorsNames(size_t index);
 		static const Color* GetColors() { return colors.get(); }
 		static void         LoadPaletteFile();
+		Rgb                 GetCurrentColor() const;
 
 	private:
 		int                               chosenPresetIndex  = 0;

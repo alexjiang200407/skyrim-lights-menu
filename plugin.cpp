@@ -30,8 +30,8 @@ extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []()
 	v.PluginName("SkyrimLightsMenu");
 	v.AuthorName("shdowraithe101");
 	v.UsesAddressLibrary();
-	v.CompatibleVersions({ SKSE::RUNTIME_SSE_LATEST_AE });
-	v.UsesStructsPost629();
+	v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+	v.UsesUpdatedStructs();
 
 	return v;
 }();

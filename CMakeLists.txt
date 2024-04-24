@@ -1,27 +1,78 @@
 cmake_minimum_required(VERSION 3.21)
+set(AE_VERSION 1)
+
+option(BUILD_SKYRIMVR "Build for Skyrim VR" OFF)
+option(BUILD_SKYRIMAE "Build for Skyrim AE" OFF)
+
+
+
+macro(set_from_environment VARIABLE)
+	if (NOT DEFINED ${VARIABLE} AND DEFINED ENV{${VARIABLE}})
+		set(${VARIABLE} $ENV{${VARIABLE}})
+	endif ()
+endmacro()
+
+macro(find_commonlib_path)
+	if (CommonLibName AND NOT ${CommonLibName} STREQUAL "")
+		# Check extern
+		find_path(CommonLibPath
+		include/REL/Relocation.h
+		PATHS extern/${CommonLibName})
+		if (${CommonLibPath} STREQUAL "CommonLibPath-NOTFOUND")
+			#Check path
+			set_from_environment(${CommonLibName}Path)
+			set(CommonLibPath ${${CommonLibName}Path})
+		endif()
+	endif()
+endmacro()
+
+set_from_environment(VCPKG_ROOT)
+if(BUILD_SKYRIMAE)
+	add_compile_definitions(SKYRIM_AE)
+	add_compile_definitions(SKYRIM_SUPPORT_AE)
+	set(CommonLibName "CommonLibSSE")
+	set_from_environment(SkyrimAEPath)
+	set(SkyrimPath ${SkyrimAEPath})
+	set(SkyrimVersion "Skyrim AE")
+	set(VERSION ${VERSION}.${AE_VERSION})
+elseif(BUILD_SKYRIMVR)
+	add_compile_definitions(SKYRIMVR)
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+	set(CommonLibName "CommonLibVR")
+	set_from_environment(SkyrimVRPath)
+	set(SkyrimPath ${SkyrimVRPath})
+	set(SkyrimVersion "Skyrim VR")
+	set(VERSION ${VERSION}.${VR_VERSION})
+else()
+	set(CommonLibName "CommonLibSSE")
+	set_from_environment(Skyrim64Path)
+	set(SkyrimPath ${Skyrim64Path})
+	set(SkyrimVersion "Skyrim SSE")
+endif()
+
+
+find_commonlib_path()
+
+message(
+	STATUS
+	"Building ${NAME} ${VERSION} for ${SkyrimVersion} at ${SkyrimPath} with ${CommonLibName} at ${CommonLibPath}."
+)
+
+if (DEFINED VCPKG_ROOT)
+	set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+	set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
+else ()
+	message(
+		WARNING
+		"Variable VCPKG_ROOT is not set. Continuing without vcpkg."
+	)
+endif ()
+
+set(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
 
 # Set your project name. This will be the name of your SKSE .dll file.
 project(SkyrimLightsMenu VERSION 0.0.1 LANGUAGES CXX)
-
-
-# CHANGE ME IF YOU DON'T USE MO2'!!!
-set(OUTPUT_FOLDER "C:/Modding/MO2/mods/Skyrim Lights Menu")
-
-# Get the .cpp files from your src/ directory
-# to be passed into add_commonlibsse_plugin
-file(GLOB_RECURSE source_files src/*.cpp)
-
-# Setup your SKSE plugin as an SKSE plugin!
-find_package(CommonLibSSE CONFIG REQUIRED)
-find_package(imgui CONFIG REQUIRED)
-find_package(spdlog REQUIRED CONFIG)
-find_package(nlohmann_json CONFIG REQUIRED)
-
-add_compile_definitions(SKYRIM_AE)
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_definitions(DEBUG)
-endif()
 
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/Version.h.in
@@ -35,10 +86,44 @@ configure_file(
 	@ONLY
 )
 
+if (DEFINED CommonLibPath AND NOT ${CommonLibPath} STREQUAL "" AND IS_DIRECTORY ${CommonLibPath})
+	add_subdirectory(${CommonLibPath} ${CommonLibName})
+else ()
+	message(
+		FATAL_ERROR
+		"Variable ${CommonLibName}Path is not set or in extern/. ${CommonLibPath}"
+	)
+endif()
+
+
+
+
+
+# CHANGE ME IF YOU DON'T USE MO2'!!!
+set(OUTPUT_FOLDER "C:/Modding/MO2/mods/Skyrim Lights Menu")
+
+# Get the .cpp files from your src/ directory
+# to be passed into add_commonlibsse_plugin
+file(GLOB_RECURSE source_files src/*.cpp)
+
+find_package(imgui CONFIG REQUIRED)
+#find_package(spdlog REQUIRED CONFIG)
+find_package(nlohmann_json CONFIG REQUIRED)
+
+add_compile_definitions(SKYRIM_AE)
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(DEBUG)
+endif()
+
+
+
+
 add_library(
     ${PROJECT_NAME} 
     SHARED 
-    ${source_files} 
+    ${source_files}
+	${header_files}
     plugin.cpp 
     ${CMAKE_CURRENT_BINARY_DIR}/include/Version.h
 	${CMAKE_CURRENT_BINARY_DIR}/version.rc
@@ -49,16 +134,16 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE PCH.h) # <--- PCH.h is require
 target_include_directories(
     ${PROJECT_NAME} 
     PRIVATE 
-        include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(
+	${PROJECT_NAME}
     PRIVATE
-        CommonLibSSE::CommonLibSSE
-        spdlog::spdlog
+        ${CommonLibName}::${CommonLibName}
         imgui::imgui
         nlohmann_json 
         nlohmann_json::nlohmann_json

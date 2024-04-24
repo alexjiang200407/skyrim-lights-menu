@@ -23,13 +23,9 @@ SLM::Rgb SLM::Palette::DrawControlWindow()
 		GetColorCount());
 
 	ImGui::ColorEdit3("Color", customColor);
-
-	if (colorSelectionMode == 1)
-	{
-		return Rgb{ uint8_t(customColor[0] * 255), uint8_t(customColor[1] * 255), uint8_t(customColor[2] * 255) };
-	}
 	ImGui::PopItemWidth();
-	return std::get<1>(colors[chosenPresetIndex]);
+
+	return GetCurrentColor();
 }
 
 void SLM::Palette::Serialize(SKSE::SerializationInterface* intfc) const
@@ -92,4 +88,13 @@ void SLM::Palette::LoadPaletteFile()
 	{
 		logger::error("{}", e.what());
 	}
+}
+
+SLM::Rgb SLM::Palette::GetCurrentColor() const
+{
+	if (colorSelectionMode == kCustomColor)
+	{
+		return Rgb{ uint8_t(customColor[0] * 255), uint8_t(customColor[1] * 255), uint8_t(customColor[2] * 255) };
+	}
+	return std::get<1>(colors[chosenPresetIndex]);
 }

@@ -22,17 +22,6 @@ void SLM::SkyrimLightsMenu::DoFrame()
 		}
 		else
 		{
-			//ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-
-			static bool firstOpen = true;
-
-			if (firstOpen)
-			{
-				ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-				const auto viewportSz = ImGui::GetMainViewport()->Size;
-				ImGui::SetNextWindowSize(ImVec2{ viewportSz.x * 0.3f, viewportSz.y * 0.8f });
-				firstOpen = false;
-			}
 			// Draw main window
 			bool open = true;
 			ImGui::BeginDisabled(scene.IsHidden());
@@ -57,16 +46,20 @@ void SLM::SkyrimLightsMenu::DoFrame()
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_P, false))
 	{
-		scene.StartPositioning();
+		scene.TogglePositioning();
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
 	{
 		logger::trace("Hiding menu");
 		Deactivate();
 	}
-	if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
+	if (ImGui::IsKeyPressed(ImGuiKey_Tab, false))
 	{
 		scene.ImGuiGoBack();
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_L, false))
+	{
+		scene.ToggleLookAround();
 	}
 #ifdef DEBUG
 	else if (ImGui::IsKeyPressed(ImGuiKey_H) && IsMenuActive())

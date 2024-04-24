@@ -42,5 +42,6 @@ namespace SLM
 		Palette              palette;
 		LightType            lightType;
 		Rgb                  lightColor;
+		bool                 isHidden = false;
 	};
 }
