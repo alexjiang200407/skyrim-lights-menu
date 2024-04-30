@@ -23,50 +23,17 @@ void SLM::SkyrimLightsMenu::DoFrame()
 		else
 		{
 			// Draw main window
-			bool open = true;
-			ImGui::BeginDisabled(scene.IsHidden());
-			if (ImGui::Begin("##Main", &open))
+			//bool open = true;
+			if (ImGui::Begin("##SLMMain"))
 			{
+				ImGui::BeginDisabled(scene.IsHidden());
 				scene.DrawControlWindow();
+				ImGui::EndDisabled();
 			}
-
-			if (!open)
-				SetMenuActive(false);
-
 			ImGui::End();
-			ImGui::EndDisabled();
 		}
-	}
 
-	// Show or Hide window
-	if (ImGui::IsKeyPressed(ImGuiKey_End, false))
-	{
-		logger::trace("Toggle menu");
-		ToggleMenu();
 	}
-	if (ImGui::IsKeyPressed(ImGuiKey_P, false))
-	{
-		scene.TogglePositioning();
-	}
-	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
-	{
-		logger::trace("Hiding menu");
-		Deactivate();
-	}
-	if (ImGui::IsKeyPressed(ImGuiKey_Tab, false))
-	{
-		scene.ImGuiGoBack();
-	}
-	if (ImGui::IsKeyPressed(ImGuiKey_L, false))
-	{
-		scene.ToggleLookAround();
-	}
-#ifdef DEBUG
-	else if (ImGui::IsKeyPressed(ImGuiKey_H) && IsMenuActive())
-	{
-		ToggleShowDemo();
-	}
-#endif
 }
 
 inline bool SLM::SkyrimLightsMenu::IsMenuActive() const { return IsActive; }
@@ -202,5 +169,51 @@ void SLM::SkyrimLightsMenu::PostSaveLoad()
 	for (auto& prop : scene.GetProps())
 	{
 		prop.Reload3D();
+	}
+}
+
+void SLM::SkyrimLightsMenu::HandleImGuiInput()
+{
+	if (ImGui::IsKeyPressed(ImGuiKey_P, false))
+	{
+		scene.TogglePositioning();
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+	{
+		logger::trace("Hiding menu");
+		Deactivate();
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_Tab, false))
+	{
+		scene.ImGuiGoBack();
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_L, false))
+	{
+		scene.ToggleLookAround();
+	}
+}
+
+void SLM::SkyrimLightsMenu::HandleInputEvent(RE::InputEvent* const* ppEvent)
+{
+	// Show or Hide window
+
+	for (auto event = *ppEvent; event; event = event->next)
+	{
+		const auto button = event->AsButtonEvent();
+		if (!button || !button->HasIDCode())
+		{
+			continue;
+		}
+		if (button->IsPressed() && button->IsRepeating() == false)
+		{
+			auto key = button->GetIDCode();
+
+			if (key == 0xCF)
+			{
+				logger::trace("Toggle menu");
+				ToggleMenu();
+			}
+
+		}
 	}
 }

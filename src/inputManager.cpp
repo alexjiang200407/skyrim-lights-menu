@@ -261,6 +261,8 @@ RE::BSEventNotifyControl SLM::InputManager::ProcessInputEvent(RE::InputEvent* co
 	if (!ppEvent)
 		return RE::BSEventNotifyControl::kContinue;
 
+	HandleInputEvent(ppEvent);
+
 	for (auto* event = *ppEvent; event; event = event->next)
 	{
 		if (!AllowImGuiInput(event))

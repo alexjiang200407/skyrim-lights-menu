@@ -4,10 +4,13 @@
 #define NOMINMAX
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #define _SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING
+#define DIRECTINPUT_VERSION 0x0800
+#define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 #include <wrl/client.h>
+#include "imgui_internal.h"
 #include <imgui.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>

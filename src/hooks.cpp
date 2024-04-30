@@ -6,6 +6,7 @@ LRESULT SLM::Hooks::WndProc::thunk(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 	auto& io = ImGui::GetIO();
 	if (uMsg == WM_KILLFOCUS)
 	{
+		logger::info("WM_KILLFOCUS");
 		io.ClearInputCharacters();
 		io.ClearInputKeys();
 	}
@@ -69,6 +70,9 @@ inline void SLM::Hooks::CreateD3DAndSwapChain::thunk()
 		io.DisplaySize.x                     = static_cast<float>(screenSize.width);
 		io.DisplaySize.y                     = static_cast<float>(screenSize.height);
 		io.ConfigWindowsMoveFromTitleBarOnly = true;
+		io.WantCaptureMouse                  = false;
+		io.MouseDrawCursor                   = false;
+		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 	}
 
 	WndProc::func = reinterpret_cast<WNDPROC>(
@@ -92,13 +96,13 @@ inline void SLM::Hooks::StopTimer::thunk(std::uint32_t timer)
 
 	// Skip draw if hooks haven't been registered
 	if (!Hooks::GetSingleton()->installedHooks.load())
-	{
 		return;
-	}
+
+	if (!SkyrimLightsMenu::GetSingleton()->IsMenuActive())
+		return;
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
-
 	{
 		static const auto screenSize = RE::BSGraphics::Renderer::GetSingleton()->GetScreenSize();
 		auto&             io         = ImGui::GetIO();
@@ -107,9 +111,10 @@ inline void SLM::Hooks::StopTimer::thunk(std::uint32_t timer)
 	}
 
 	ImGui::NewFrame();
-
-	SkyrimLightsMenu::GetSingleton()->DoFrame();
-
+	{
+		SkyrimLightsMenu::GetSingleton()->DoFrame();
+		SkyrimLightsMenu::GetSingleton()->HandleImGuiInput();
+	}
 	ImGui::EndFrame();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

@@ -10,8 +10,10 @@ namespace SLM
 		static ImGuiKey          ToImGuiKey(RE::BSWin32GamepadDevice::Key key);
 		RE::BSEventNotifyControl ProcessInputEvent(RE::InputEvent* const* ppEvent);
 
-		virtual bool AllowGameInput(RE::InputEvent* event) = 0;
-		virtual bool AllowImGuiInput(RE::InputEvent* event) = 0;
+		virtual bool AllowGameInput(RE::InputEvent* event)           = 0;
+		virtual bool AllowImGuiInput(RE::InputEvent* event)          = 0;
+		virtual void HandleImGuiInput()                              = 0;  // Derived class handle ImGui input
+		virtual void HandleInputEvent(RE::InputEvent* const* events) = 0;  // Derived class Handle skyrim input event
 
 		RE::InputEvent* const* FilterGameInput(RE::InputEvent* const* events);
 
