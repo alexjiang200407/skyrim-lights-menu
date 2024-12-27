@@ -32,6 +32,7 @@ namespace SLM
 		void               StopPositioning() { positioningProp = false; }
 		void               TogglePositioning() { positioningProp = !positioningProp; }
 		void               ToggleLookAround() { lookAround = !lookAround; }
+		static float*      GetCameraMoveSpeed();
 
 	public:
 	private:

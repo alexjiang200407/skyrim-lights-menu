@@ -44,9 +44,6 @@ void SLM::Prop::Deserialize(SKSE::SerializationInterface* intfc)
 	lightBase->data.color.green = std::get<1>(newColor);
 	lightBase->data.color.blue  = std::get<2>(newColor);
 	logger::info("Light color r: {}, g: {}, b: {}", lightBase->data.color.red, lightBase->data.color.green, lightBase->data.color.blue);
-
-	// Load 3D Model now
-	//ref->Load3D(false);
 }
 
 void SLM::Prop::Remove()
@@ -72,6 +69,8 @@ void SLM::Prop::MoveToCameraLookingAt(float distanceFromCamera)
 {
 	auto cameraNode = RE::PlayerCamera::GetSingleton()->cameraRoot.get()->AsNode();
 	auto cameraNI   = reinterpret_cast<RE::NiCamera*>((cameraNode->children.size() == 0) ? nullptr : cameraNode->children[0].get());
+
+	if (cameraNI)
 	ref->SetPosition(GetCameraPosition() + (cameraNI->world.rotate * RE::NiPoint3{ distanceFromCamera, 0.0f, 0.0f }));
 }
 

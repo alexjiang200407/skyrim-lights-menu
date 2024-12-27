@@ -36,7 +36,7 @@ void SLM::SkyrimLightsMenu::DoFrame()
 	}
 }
 
-inline bool SLM::SkyrimLightsMenu::IsMenuActive() const { return IsActive; }
+bool SLM::SkyrimLightsMenu::IsMenuActive() const { return IsActive; }
 
 void SLM::SkyrimLightsMenu::Deactivate()
 {
@@ -204,7 +204,7 @@ void SLM::SkyrimLightsMenu::HandleInputEvent(RE::InputEvent* const* ppEvent)
 		{
 			continue;
 		}
-		if (button->IsPressed() && button->IsRepeating() == false)
+		if (button->IsPressed() && !button->IsRepeating())
 		{
 			auto key = button->GetIDCode();
 

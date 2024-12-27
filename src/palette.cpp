@@ -12,7 +12,7 @@ SLM::Rgb SLM::Palette::DrawControlWindow()
 	ImGui::SameLine();
 	ImGui::RadioButton("Custom Color", reinterpret_cast<int*>(&colorSelectionMode), 1);
 
-	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Preset").x);
 	ImGui::Combo(
 		"Preset", &chosenPresetIndex, [](void*, int idx, const char** out_pcstr)
 		{ 

@@ -1,7 +1,6 @@
 #include "scene.hpp"
 #include "util.hpp"
 
-//float& SLM::Scene::cameraTranslateSpeed =
 
 void SLM::Scene::DrawControlWindow()
 {
@@ -44,27 +43,20 @@ void SLM::Scene::DrawControlWindow()
 		props[activePropIndex].DrawControlWindow();
 	
 	// Draw control panel
-	ImGui::BeginChild("###SceneControlWindow", ImVec2(0, 150), true);
+	ImGui::BeginChild("###CameraControlWindow", ImVec2(0, 150), true);
 	{
-		ImGui::Text("Scene Properties:");
-		ImGui::Checkbox("Hide Menu", &lookAround);
-		auto& io = ImGui::GetIO();
-
-		if (lookAround || positioningProp)
-		{
-			io.MouseDrawCursor      = false;
-			io.WantCaptureMouse     = false;
-		}
-		else
-		{
-			io.MouseDrawCursor      = true;
-			io.WantCaptureMouse     = true;
-		}
-
-		if (ImGui::Button("Add Light"))
-			PlaceProp();
+		ImGui::Text("Camera Settings:");
+		ImGui::Checkbox("Freeze Time", &RE::Main::GetSingleton()->freezeTime);
+		ImGui::SliderFloat("Camera Speed", GetCameraMoveSpeed(), 0.001f, 50.0f);
 	}
 	ImGui::EndChild();
+
+	auto& io = ImGui::GetIO();
+	if (lookAround || positioningProp)
+	{
+		io.MouseDrawCursor  = false;
+		io.WantCaptureMouse = false;
+	}
 
 	if (positioningProp && activePropIndex != -1)
 	{
@@ -133,11 +125,11 @@ void SLM::Scene::PlaceProp()
 	auto* factory      = RE::IFormFactory::GetFormFactoryByType(RE::FormType::Light);
 	auto* lightBaseObj = factory->Create()->As<RE::TESObjectLIGH>();
 
+	logger::info("0x{:x}",lightBaseObj->GetFormID());
+	//RE::FormID id      = FindAvailableFormID();
+	//lightBaseObj->data = RE::TESForm::LookupByID(id)->As<RE::TESObjectLIGH>()->data;
+	//lightBaseObj->SetFormID(id, false);
 
-	// lightBaseObj->SetFormID();
-	RE::FormID id      = FindAvailableFormID();
-	lightBaseObj->data = RE::TESForm::LookupByID(id)->As<RE::TESObjectLIGH>()->data;
-	lightBaseObj->SetFormID(id, false);
 
 	auto newPropRef = RE::TESDataHandler::GetSingleton()->CreateReferenceAtLocation(
 		lightBaseObj->As<RE::TESBoundObject>(), origin, { 0.0f, 0.0f, 0.0f }, playerRef->GetParentCell(), playerRef->GetWorldspace(),
@@ -226,4 +218,9 @@ void SLM::Scene::ImGuiGoBack()
 {
 	positioningProp = false;
 	lookAround      = false;
+}
+
+float* SLM::Scene::GetCameraMoveSpeed()
+{
+	return REL::Relocation<float*>{ RELOCATION_ID(509808, 382522) }.get();
 }
